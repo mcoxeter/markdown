@@ -8,10 +8,7 @@ describe('MarkdownToken Tests', () => {
     expect(markdownToken.getEndCursorPosition()).toBe(0);
     expect(markdownToken.getStartCursorPosition()).toBe(0);
     expect(markdownToken.isValid()).toBe(false);
-    expect(markdownToken.getProcessingOrder()).toStrictEqual([
-      'paragraph',
-      'text'
-    ]);
+    expect(markdownToken.getProcessingOrder()).toStrictEqual(['paragraph']);
     expect(markdownToken.getTokenSource()).toBe('');
     expect(markdownToken.getName()).toBe('markdown');
   });

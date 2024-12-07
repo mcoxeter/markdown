@@ -10,7 +10,7 @@ export type TokenType =
   | 'inline-code'
   | 'text'
   | 'image'
-  | 'hard-line';
+  | 'soft-break';
 
 /** Type alias representing a position within a source string. */
 export type PositionInSource = number;

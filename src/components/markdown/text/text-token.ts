@@ -83,6 +83,10 @@ export class TextToken implements Token {
       this.endCursorPosition++;
     }
 
-    this.source = source.substring(start, this.endCursorPosition);
+    const unTrimmed = source.substring(start, this.endCursorPosition);
+    const trimmed = unTrimmed.trimEnd();
+
+    this.source = trimmed;
+    this.endCursorPosition -= unTrimmed.length - trimmed.length;
   }
 }

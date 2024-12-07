@@ -9,13 +9,14 @@ export class ParagraphToken implements Token {
   private valid: boolean = false;
   private name: TokenType = 'paragraph';
   private source: string = '';
+  private proccessingOrder: TokenType[] = ['text', 'soft-break'];
 
   private children: Token[] = [];
   /**
    * Specifies the order in which this token processes child tokens.
    */
   getProcessingOrder(): TokenType[] {
-    return ['text'];
+    return this.proccessingOrder;
   }
 
   getChildren(): Token[] {
