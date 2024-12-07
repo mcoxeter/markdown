@@ -1,4 +1,4 @@
-import { Backtick, Hash, Star } from '../constants';
+import { Backtick, Hash, NewLine, Star } from '../constants';
 import { PositionInSource, Token, TokenType } from '../token';
 
 export class TextToken implements Token {
@@ -77,7 +77,8 @@ export class TextToken implements Token {
      */
     while (
       this.endCursorPosition < end &&
-      !isTerminationChar(source[this.endCursorPosition])
+      !isTerminationChar(source[this.endCursorPosition]) &&
+      source[this.endCursorPosition] !== NewLine
     ) {
       this.endCursorPosition++;
     }

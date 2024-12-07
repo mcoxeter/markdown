@@ -38,7 +38,8 @@ describe('TextToken Tests', () => {
     ['This is a #header', 'This is a '],
     ['This is a `Some code`', 'This is a '],
     ['*a', '*'],
-    ['**a', '**']
+    ['**a', '**'],
+    ['line1\nline2', 'line1']
   ])('TextToken compiles "%s" to "%s"', (rawSource, expected) => {
     const textToken = new TextToken();
     textToken.compile(rawSource, 0, rawSource.length);
