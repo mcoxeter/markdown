@@ -36,6 +36,17 @@ describe('ParagraphToken Tests', () => {
     expect(paragraphToken.getTokenSource()).toStrictEqual('Paragraph 1');
   });
 
+  test('ParagraphToken can have several texts in it', () => {
+    const paragraphToken = new ParagraphToken();
+    const rawSource = 'text 1\ntext 2\ntext 3';
+    paragraphToken.compile(rawSource, 0, rawSource.length);
+    const children = paragraphToken.getChildren();
+    expect(children.length).toBe(3);
+    expect(paragraphToken.getTokenSource()).toStrictEqual(
+      'text 1\ntext 2\ntext 3'
+    );
+  });
+
   test('Handles invalid range (start > end)', () => {
     const paragraphToken = new ParagraphToken();
     const source = 'This is invalid.';

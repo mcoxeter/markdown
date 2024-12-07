@@ -1,5 +1,6 @@
 import { BoldToken } from './bold/bold-token';
 import { ItalicToken } from './italic/italic-token';
+import { ParagraphToken } from './paragraph/paragraph-token';
 import { TextToken } from './text/text-token';
 import { TokenType, Token } from './token';
 
@@ -14,10 +15,11 @@ export function createTokenStack(tokenTypes: TokenType[]): Token[] {
   const tokenFactory = new Map<TokenType, () => Token>([
     ['italic', () => new ItalicToken()],
     ['bold', () => new BoldToken()],
-    ['text', () => new TextToken()]
+    ['text', () => new TextToken()],
+    ['paragraph', () => new ParagraphToken()]
   ]);
 
-  return tokenTypes.map((tokenType) => {
+  return tokenTypes.reverse().map((tokenType) => {
     const createToken = tokenFactory.get(tokenType);
     if (!createToken) {
       throw new Error(`Unsupported token type: ${tokenType}`);

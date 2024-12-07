@@ -1,31 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { EmptyLine, NewLine } from '../constants';
 import { PositionInSource, Token, TokenType } from '../token';
 import { createTokenStack } from '../token-factory';
 
-export class ParagraphToken implements Token {
+export class MarkdownToken implements Token {
   private startCursorPosition: number = 0;
   private endCursorPosition: number = 0;
   private valid: boolean = false;
-  private name: TokenType = 'paragraph';
+  private name: TokenType = 'markdown';
   private source: string = '';
 
   private children: Token[] = [];
-  /**
-   * Specifies the order in which this token processes child tokens.
-   */
   getProcessingOrder(): TokenType[] {
-    return ['text'];
+    return ['paragraph', 'text'];
   }
-
   getChildren(): Token[] {
     return this.children;
   }
-
   getStartCursorPosition(): PositionInSource {
     return this.startCursorPosition;
   }
-
   getEndCursorPosition(): PositionInSource {
     return this.endCursorPosition;
   }
@@ -41,13 +34,6 @@ export class ParagraphToken implements Token {
 
   getAST(): string {
     return JSON.stringify(this);
-  }
-
-  private isEndOfParagraph(source: string): boolean {
-    return (
-      source.substring(this.endCursorPosition, this.endCursorPosition + 2) ===
-      EmptyLine
-    );
   }
 
   private hasReachedSourceEnd(end: PositionInSource): boolean {
@@ -77,26 +63,13 @@ export class ParagraphToken implements Token {
         tokens = createTokenStack(this.getProcessingOrder());
         this.endCursorPosition = token.getEndCursorPosition();
 
-        // Exit condition 1: End of paragraph (empty line).
-        if (this.isEndOfParagraph(source)) {
-          this.source = source.substring(start, this.endCursorPosition);
-          this.endCursorPosition += 2; // Move past the empty line.
-          return;
-        }
-
-        // Exit condition 2: Reached the end of the source.
+        // Exit condition 1: Reached the end of the source.
         if (this.hasReachedSourceEnd(end)) {
-          this.source = source.substring(start, this.endCursorPosition);
+          this.source = source.substring(
+            token.getStartCursorPosition(),
+            this.endCursorPosition
+          );
           return;
-        }
-
-        if (
-          source.substring(
-            this.endCursorPosition,
-            this.endCursorPosition + 1
-          ) === NewLine
-        ) {
-          this.endCursorPosition++; // Move past NewLine.
         }
       }
     }
