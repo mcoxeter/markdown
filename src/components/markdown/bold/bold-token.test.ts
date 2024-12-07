@@ -12,8 +12,7 @@ test('bold token is initialized correctly', () => {
   expect(boldToken.getName()).toStrictEqual('bold');
 });
 
-test.each(['**b**'])(
-  //, '**This *is* bold**', '**This *is bold***'
+test.each(['**b**', '**This *is* bold**', '**This *is bold***'])(
   '"%s" is a valid bold token',
   (source) => {
     const boldToken = new BoldToken();
@@ -22,11 +21,11 @@ test.each(['**b**'])(
   }
 );
 
-// test.each(['*b*', '**', '', '**b', '****'])(
-//   '"%s" is not a valid bold token',
-//   (source) => {
-//     const boldToken = new BoldToken();
-//     boldToken.compile(source, 0, source.length);
-//     expect(boldToken.isValid()).toBeFalsy();
-//   }
-// );
+test.each(['*b*', '**', '', '**b', '****'])(
+  '"%s" is not a valid bold token',
+  (source) => {
+    const boldToken = new BoldToken();
+    boldToken.compile(source, 0, source.length);
+    expect(boldToken.isValid()).toBeFalsy();
+  }
+);

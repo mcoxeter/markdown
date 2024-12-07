@@ -4,3 +4,4 @@ export const Backtick = '`';
 export const EmptyLine = '\n\n';
 export const NewLine = '\n';
 export const SoftBreak = ' ';
+export const BoldIndicator = '**';

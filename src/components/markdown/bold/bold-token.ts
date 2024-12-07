@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { BoldIndicator } from '../constants';
 import { PositionInSource, Token, TokenType } from '../token';
 import { createTokenStack } from '../token-factory';
 
@@ -8,10 +9,10 @@ export class BoldToken implements Token {
   private valid: boolean = false;
   private name: TokenType = 'bold';
   private source: string = '';
-
+  private processingOrder: TokenType[] = ['text'];
   private children: Token[] = [];
   getProcessingOrder(): TokenType[] {
-    return ['text'];
+    return this.processingOrder;
   }
   getChildren(): Token[] {
     return this.children;
@@ -36,6 +37,13 @@ export class BoldToken implements Token {
     return JSON.stringify(this);
   }
 
+  private isEndOfBold(source: string): boolean {
+    return (
+      source.substring(this.endCursorPosition, this.endCursorPosition + 2) ===
+      BoldIndicator
+    );
+  }
+
   compile(
     source: string,
     start: PositionInSource,
@@ -54,24 +62,20 @@ export class BoldToken implements Token {
 
     this.endCursorPosition = this.startCursorPosition + 2;
 
-    let tokens = createTokenStack(this.getProcessingOrder());
+    let tokens = createTokenStack(this.processingOrder);
 
     while (tokens.length > 0) {
       const token = tokens.pop();
       token?.compile(source, this.endCursorPosition, end);
       if (token?.isValid()) {
-        this.children = this.children.concat(token);
+        this.children.push(token);
         tokens = createTokenStack(this.getProcessingOrder());
         this.endCursorPosition = token.getEndCursorPosition();
 
         // Is End condition matched.
-        if (
-          source.substring(
-            this.endCursorPosition,
-            this.endCursorPosition + 2
-          ) === '**'
-        ) {
-          this.endCursorPosition++;
+        if (this.isEndOfBold(source)) {
+          this.endCursorPosition += 2;
+          this.source = source.substring(start, this.endCursorPosition);
           return;
         }
 
@@ -81,9 +85,6 @@ export class BoldToken implements Token {
         }
       }
     }
-
-    // Next process possible child tokens.
-    this.valid = true;
   }
 }
 
@@ -93,7 +94,7 @@ function rule_first_and_second_character(
   start: PositionInSource,
   end: PositionInSource
 ): boolean {
-  return source.substring(start, start + 2) === '**';
+  return source.substring(start, start + 2) === BoldIndicator;
 }
 
 // **d**
