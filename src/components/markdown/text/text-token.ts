@@ -68,7 +68,6 @@ export class TextToken implements Token {
     start: PositionInSource,
     end: PositionInSource
   ): void {
-    // Validate input positions.
     if (this.invalidArgs(source, start, end)) {
       this.valid = false;
       return;
