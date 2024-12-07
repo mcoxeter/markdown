@@ -102,7 +102,7 @@ export class TextToken implements Token {
 
     this.source = source.substring(start, this.endCursorPosition);
 
-    // Case 3: WHen the token ends with a double space at the end of the line.
+    // Case 3: When the token ends with a double space at the end of the line.
     if (
       this.source.endsWith('  ') &&
       source.substring(this.endCursorPosition, this.endCursorPosition + 1) ===
