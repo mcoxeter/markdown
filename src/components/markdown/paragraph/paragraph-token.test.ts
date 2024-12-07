@@ -8,7 +8,10 @@ describe('ParagraphToken Tests', () => {
     expect(paragraphToken.getEndCursorPosition()).toBe(0);
     expect(paragraphToken.getStartCursorPosition()).toBe(0);
     expect(paragraphToken.isValid()).toBe(false);
-    expect(paragraphToken.getProcessingOrder()).toStrictEqual(['text']);
+    expect(paragraphToken.getProcessingOrder()).toStrictEqual([
+      'text',
+      'soft-break'
+    ]);
     expect(paragraphToken.getTokenSource()).toBe('');
     expect(paragraphToken.getName()).toBe('paragraph');
   });
@@ -45,6 +48,18 @@ describe('ParagraphToken Tests', () => {
     expect(paragraphToken.getTokenSource()).toStrictEqual(
       'text 1\ntext 2\ntext 3'
     );
+  });
+
+  test('ParagraphToken can have several texts delimited by soft breaks', () => {
+    const paragraphToken = new ParagraphToken();
+    const rawSource = 'text 1  \ntext 2\ntext 3';
+    paragraphToken.compile(rawSource, 0, rawSource.length);
+    const children = paragraphToken.getChildren();
+    expect(children.length).toBe(4);
+    expect(children[0].getName()).toStrictEqual('text');
+    expect(children[1].getName()).toStrictEqual('soft-break');
+    expect(children[2].getName()).toStrictEqual('text');
+    expect(children[3].getName()).toStrictEqual('text');
   });
 
   test('Handles invalid range (start > end)', () => {

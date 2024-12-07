@@ -31,12 +31,19 @@ describe('TextToken Tests', () => {
     expect(textToken.isValid()).toBe(true);
   });
 
+  test('TextToken trims whitespace at end', () => {
+    const textToken = new TextToken();
+    const rawSource = 'example text   ';
+    textToken.compile(rawSource, 0, rawSource.length);
+    expect(textToken.getTokenSource()).toStrictEqual('example text');
+  });
+
   test.each([
-    ['the *b* quick brown 1. fox', 'the '],
+    ['the *b* quick brown 1. fox', 'the'],
     ['This is a simple text', 'This is a simple text'],
     ['', ''],
-    ['This is a #header', 'This is a '],
-    ['This is a `Some code`', 'This is a '],
+    ['This is a #header', 'This is a'],
+    ['This is a `Some code`', 'This is a'],
     ['*a', '*'],
     ['**a', '**'],
     ['line1\nline2', 'line1']
@@ -51,15 +58,15 @@ describe('TextToken Tests', () => {
     const textToken = new TextToken();
     textToken.compile('the *b* quick brown 1. fox', 0, 4);
     expect(textToken.getAST()).toBe(
-      '{"startCursorPosition":0,"endCursorPosition":4,"valid":true,"name":"text","source":"the ","children":[]}'
+      '{"startCursorPosition":0,"endCursorPosition":3,"valid":true,"name":"text","source":"the","children":[]}'
     );
   });
 
   test.each([
-    ['the *b* quick brown 1. fox', 'he '],
+    ['the *b* quick brown 1. fox', 'he'],
     ['This is a simple text', 'his is a simple text'],
-    ['This is a #header', 'his is a '],
-    ['This is a `Some code`', 'his is a ']
+    ['This is a #header', 'his is a'],
+    ['This is a `Some code`', 'his is a']
   ])(
     'TextToken starting at position 1 for "%s" compiles to "%s"',
     (rawSource, expected) => {
@@ -100,6 +107,31 @@ describe('TextToken Tests', () => {
   test('TextToken stops at termination character mid-source', () => {
     const textToken = new TextToken();
     textToken.compile('example #header text', 0, 18);
-    expect(textToken.getTokenSource()).toBe('example ');
+    expect(textToken.getTokenSource()).toBe('example');
   });
+
+  test('TextToken handles null or undefined input', () => {
+    const textToken = new TextToken();
+    textToken.compile(null as unknown as string, 0, 5);
+    expect(textToken.isValid()).toBe(false);
+    expect(textToken.getTokenSource()).toBe('');
+
+    textToken.compile(undefined as unknown as string, 0, 5);
+    expect(textToken.isValid()).toBe(false);
+    expect(textToken.getTokenSource()).toBe('');
+  });
+
+  test.each([
+    [-1, 0, false, 'is neg is not allowed'],
+    [10, -6, false, 'is neg is not allowed'],
+    [2, 1, false, 'end is less than start'],
+    [2, 2, true, 'its ok to have the two the same']
+  ])(
+    'TextToken start %d and end %s is considered valid === %s, because %s',
+    (start, end, valid) => {
+      const textToken = new TextToken();
+      textToken.compile('test', start, end);
+      expect(textToken.isValid()).toBe(valid);
+    }
+  );
 });

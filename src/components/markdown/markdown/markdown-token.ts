@@ -8,10 +8,10 @@ export class MarkdownToken implements Token {
   private valid: boolean = false;
   private name: TokenType = 'markdown';
   private source: string = '';
-
+  private processingOrder: TokenType[] = ['paragraph'];
   private children: Token[] = [];
   getProcessingOrder(): TokenType[] {
-    return ['paragraph', 'text'];
+    return this.processingOrder;
   }
   getChildren(): Token[] {
     return this.children;
@@ -53,14 +53,14 @@ export class MarkdownToken implements Token {
     this.endCursorPosition = this.startCursorPosition;
     this.valid = true;
 
-    let tokens = createTokenStack(this.getProcessingOrder());
+    let tokens = createTokenStack(this.processingOrder);
 
     while (tokens.length > 0) {
       const token = tokens.pop();
       token?.compile(source, this.endCursorPosition, end);
       if (token?.isValid()) {
         this.children.push(token);
-        tokens = createTokenStack(this.getProcessingOrder());
+        tokens = createTokenStack(this.processingOrder);
         this.endCursorPosition = token.getEndCursorPosition();
 
         // Exit condition 1: Reached the end of the source.

@@ -35,31 +35,51 @@ export class TextToken implements Token {
     return JSON.stringify(this);
   }
 
+  /**
+   * Checks if a character is a termination character.
+   * @param char The character to check.
+   */
+  private isTerminationChar(char: string): boolean {
+    return new Set([Star, Hash, Backtick]).has(char);
+  }
+
+  private invalidArgs(
+    source: string,
+    start: PositionInSource,
+    end: PositionInSource
+  ): boolean {
+    return (
+      typeof source !== 'string' ||
+      typeof start !== 'number' ||
+      typeof end !== 'number' ||
+      start < 0 ||
+      end < start
+    );
+  }
+
+  /**
+   * Compiles the token from the source text and sets its validity.
+   * @param source The source text.
+   * @param start The starting position in the source.
+   * @param end The ending position in the source.
+   */
   compile(
     source: string,
     start: PositionInSource,
     end: PositionInSource
   ): void {
-    this.startCursorPosition = start;
-    this.endCursorPosition = this.startCursorPosition;
-
-    if (start > end) {
+    if (this.invalidArgs(source, start, end)) {
       this.valid = false;
       return;
     }
-    this.valid = true;
 
-    const terminationChars = new Set([Star, Hash, Backtick]);
-    const isTerminationChar = (char: string): boolean =>
-      terminationChars.has(char);
+    this.startCursorPosition = start;
+    this.endCursorPosition = start;
 
-    /**
-     * Case 1: If the token starts with a termination character, it consumes all
-     * consecutive occurrences of the same character until a different character
-     * or the end of the source is reached.
-     */
-    if (isTerminationChar(source[start])) {
-      const initialChar = source[start];
+    // Case 1: Handle tokens starting with termination characters.
+    //         Consumes all consecutive occurrences of the same character
+    const initialChar = source[start];
+    if (this.isTerminationChar(initialChar)) {
       while (
         this.endCursorPosition < end &&
         source[this.endCursorPosition] === initialChar
@@ -67,22 +87,25 @@ export class TextToken implements Token {
         this.endCursorPosition++;
       }
       this.source = source.substring(start, this.endCursorPosition);
+      this.valid = true;
       return;
     }
 
-    /**
-     * Case 2: Normal flow where the token consumes characters until a
-     * termination character is encountered or the end of the range is reached.
-     * The termination character is not included in the token.
-     */
+    // Case 2: Handle normal text tokens, stopping at termination characters or newlines.
     while (
       this.endCursorPosition < end &&
-      !isTerminationChar(source[this.endCursorPosition]) &&
+      !this.isTerminationChar(source[this.endCursorPosition]) &&
       source[this.endCursorPosition] !== NewLine
     ) {
       this.endCursorPosition++;
     }
 
-    this.source = source.substring(start, this.endCursorPosition);
+    // Trim trailing whitespace from the token's source.
+    const untrimmedSource = source.substring(start, this.endCursorPosition);
+    const trimmedSource = untrimmedSource.trimEnd();
+
+    this.source = trimmedSource;
+    this.endCursorPosition -= untrimmedSource.length - trimmedSource.length;
+    this.valid = true;
   }
 }
