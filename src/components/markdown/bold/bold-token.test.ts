@@ -19,7 +19,6 @@ test.each(['**b**'])(
     const boldToken = new BoldToken();
     boldToken.compile(source, 0, source.length);
     expect(boldToken.isValid()).toBeTruthy();
-    //expect(boldToken.getAST()).toStrictEqual('');
   }
 );
 
