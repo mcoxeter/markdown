@@ -3,17 +3,25 @@ import { ItalicToken } from './italic/italic-token';
 import { TextToken } from './text/text-token';
 import { TokenType, Token } from './token';
 
+/**
+ * Creates a stack of tokens based on the provided token types.
+ *
+ * @param tokenTypes - An array of token types to create instances for.
+ * @returns An array of token instances corresponding to the provided types.
+ * @throws An error if an unsupported token type is encountered.
+ */
 export function createTokenStack(tokenTypes: TokenType[]): Token[] {
+  const tokenFactory = new Map<TokenType, () => Token>([
+    ['italic', () => new ItalicToken()],
+    ['bold', () => new BoldToken()],
+    ['text', () => new TextToken()]
+  ]);
+
   return tokenTypes.map((tokenType) => {
-    switch (tokenType) {
-      case 'italic':
-        return new ItalicToken();
-      case 'bold':
-        return new BoldToken();
-      case 'text':
-        return new TextToken();
-      default:
-        return null as unknown as Token;
+    const createToken = tokenFactory.get(tokenType);
+    if (!createToken) {
+      throw new Error(`Unsupported token type: ${tokenType}`);
     }
+    return createToken();
   });
 }
