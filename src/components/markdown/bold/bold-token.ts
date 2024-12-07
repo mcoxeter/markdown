@@ -29,10 +29,7 @@ export class BoldToken implements Token {
     return this.name;
   }
   getTokenSource(): string {
-    return this.source.substring(
-      this.startCursorPosition,
-      this.endCursorPosition
-    );
+    return this.source;
   }
 
   getAST(): string {

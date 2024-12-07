@@ -84,5 +84,9 @@ export class TextToken implements Token {
     }
 
     this.source = source.substring(start, this.endCursorPosition);
+    // if (source[this.endCursorPosition] === NewLine) {
+    //   // When terminating of a newline charater, move the endCursorPosition past it.
+    //   this.endCursorPosition++;
+    // }
   }
 }
