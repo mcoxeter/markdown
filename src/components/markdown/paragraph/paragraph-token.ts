@@ -1,24 +1,31 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { EmptyLine } from '../constants';
 import { PositionInSource, Token, TokenType } from '../token';
 import { createTokenStack } from '../token-factory';
 
-export class BoldToken implements Token {
+export class ParagraphToken implements Token {
   private startCursorPosition: number = 0;
   private endCursorPosition: number = 0;
   private valid: boolean = false;
-  private name: TokenType = 'bold';
+  private name: TokenType = 'paragraph';
   private source: string = '';
 
   private children: Token[] = [];
+  /**
+   * Specifies the order in which this token processes child tokens.
+   */
   getProcessingOrder(): TokenType[] {
     return ['text'];
   }
+
   getChildren(): Token[] {
     return this.children;
   }
+
   getStartCursorPosition(): PositionInSource {
     return this.startCursorPosition;
   }
+
   getEndCursorPosition(): PositionInSource {
     return this.endCursorPosition;
   }
@@ -39,23 +46,29 @@ export class BoldToken implements Token {
     return JSON.stringify(this);
   }
 
+  private isEndOfParagraph(source: string): boolean {
+    return (
+      source.substring(this.endCursorPosition, this.endCursorPosition + 2) ===
+      EmptyLine
+    );
+  }
+
+  private hasReachedSourceEnd(end: PositionInSource): boolean {
+    return this.endCursorPosition >= end;
+  }
+
   compile(
     source: string,
     start: PositionInSource,
     end: PositionInSource
   ): void {
-    this.startCursorPosition = start;
-    this.endCursorPosition = end;
-    this.source = source;
-
-    const rules = [rule_first_and_second_character, rule_minimum_length];
-    if (rules.some((rule) => rule(source, start, end) === false)) {
+    if (start > end) {
+      this.valid = false;
       return;
     }
-
+    this.startCursorPosition = start;
+    this.endCursorPosition = this.startCursorPosition;
     this.valid = true;
-
-    this.endCursorPosition = this.startCursorPosition + 2;
 
     let tokens = createTokenStack(this.getProcessingOrder());
 
@@ -63,48 +76,23 @@ export class BoldToken implements Token {
       const token = tokens.pop();
       token?.compile(source, this.endCursorPosition, end);
       if (token?.isValid()) {
-        this.children = this.children.concat(token);
+        this.children.push(token);
         tokens = createTokenStack(this.getProcessingOrder());
         this.endCursorPosition = token.getEndCursorPosition();
 
-        // Is End condition matched.
-        if (
-          source.substring(
-            this.endCursorPosition,
-            this.endCursorPosition + 2
-          ) === '**'
-        ) {
-          this.endCursorPosition++;
+        // Exit condition 1: End of paragraph (empty line).
+        if (this.isEndOfParagraph(source)) {
+          this.source = source.substring(start, this.endCursorPosition);
+          this.endCursorPosition += 2; // Move past the empty line.
           return;
         }
 
-        if (this.endCursorPosition > end) {
-          this.valid = false;
+        // Exit condition 2: Reached the end of the source.
+        if (this.hasReachedSourceEnd(end)) {
+          this.source = source.substring(start, this.endCursorPosition);
           return;
         }
       }
     }
-
-    // Next process possible child tokens.
-    this.valid = true;
   }
-}
-
-// First and second character must be *
-function rule_first_and_second_character(
-  source: string,
-  start: PositionInSource,
-  end: PositionInSource
-): boolean {
-  return source.substring(start, start + 2) === '**';
-}
-
-// **d**
-function rule_minimum_length(
-  source: string,
-  start: PositionInSource,
-  end: PositionInSource
-): boolean {
-  const result = end - start > 4;
-  return result;
 }

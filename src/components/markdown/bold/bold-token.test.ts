@@ -7,7 +7,7 @@ test('bold token is initialized correctly', () => {
   expect(boldToken.getEndCursorPosition()).toBe(0);
   expect(boldToken.getStartCursorPosition()).toBe(0);
   expect(boldToken.isValid()).toBeFalsy();
-  expect(boldToken.getProcessingOrder()).toStrictEqual(['italic', 'text']);
+  expect(boldToken.getProcessingOrder()).toStrictEqual(['text']);
   expect(boldToken.getTokenSource()).toStrictEqual('');
   expect(boldToken.getName()).toStrictEqual('bold');
 });
