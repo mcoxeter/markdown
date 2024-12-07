@@ -31,19 +31,19 @@ describe('TextToken Tests', () => {
     expect(textToken.isValid()).toBe(true);
   });
 
-  test('TextToken trims whitespace at end', () => {
+  test('TextToken allows whitespace at end', () => {
     const textToken = new TextToken();
-    const rawSource = 'example text   ';
+    const rawSource = 'example text  ';
     textToken.compile(rawSource, 0, rawSource.length);
-    expect(textToken.getTokenSource()).toStrictEqual('example text');
+    expect(textToken.getTokenSource()).toStrictEqual('example text  ');
   });
 
   test.each([
-    ['the *b* quick brown 1. fox', 'the'],
+    ['the *b* quick brown 1. fox', 'the '],
     ['This is a simple text', 'This is a simple text'],
     ['', ''],
-    ['This is a #header', 'This is a'],
-    ['This is a `Some code`', 'This is a'],
+    ['This is a #header', 'This is a '],
+    ['This is a `Some code`', 'This is a '],
     ['*a', '*'],
     ['**a', '**'],
     ['line1\nline2', 'line1']
@@ -58,15 +58,15 @@ describe('TextToken Tests', () => {
     const textToken = new TextToken();
     textToken.compile('the *b* quick brown 1. fox', 0, 4);
     expect(textToken.getAST()).toBe(
-      '{"startCursorPosition":0,"endCursorPosition":3,"valid":true,"name":"text","source":"the","children":[]}'
+      '{"startCursorPosition":0,"endCursorPosition":4,"valid":true,"name":"text","source":"the ","children":[]}'
     );
   });
 
   test.each([
-    ['the *b* quick brown 1. fox', 'he'],
+    ['the *b* quick brown 1. fox', 'he '],
     ['This is a simple text', 'his is a simple text'],
-    ['This is a #header', 'his is a'],
-    ['This is a `Some code`', 'his is a']
+    ['This is a #header', 'his is a '],
+    ['This is a `Some code`', 'his is a ']
   ])(
     'TextToken starting at position 1 for "%s" compiles to "%s"',
     (rawSource, expected) => {
@@ -107,7 +107,7 @@ describe('TextToken Tests', () => {
   test('TextToken stops at termination character mid-source', () => {
     const textToken = new TextToken();
     textToken.compile('example #header text', 0, 18);
-    expect(textToken.getTokenSource()).toBe('example');
+    expect(textToken.getTokenSource()).toBe('example ');
   });
 
   test('TextToken handles null or undefined input', () => {

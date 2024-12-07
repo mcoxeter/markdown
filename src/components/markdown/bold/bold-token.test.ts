@@ -12,8 +12,7 @@ test('bold token is initialized correctly', () => {
   expect(boldToken.getName()).toStrictEqual('bold');
 });
 
-test.each(['**b**'])(
-  //, '**This *is* bold**', '**This *is bold***'
+test.each(['**b**', '**This *is* bold**', '**This *is bold***'])(
   '"%s" is a valid bold token',
   (source) => {
     const boldToken = new BoldToken();

@@ -100,12 +100,17 @@ export class TextToken implements Token {
       this.endCursorPosition++;
     }
 
-    // Trim trailing whitespace from the token's source.
-    const untrimmedSource = source.substring(start, this.endCursorPosition);
-    const trimmedSource = untrimmedSource.trimEnd();
+    this.source = source.substring(start, this.endCursorPosition);
 
-    this.source = trimmedSource;
-    this.endCursorPosition -= untrimmedSource.length - trimmedSource.length;
+    // Case 3: WHen the token ends with a double space at the end of the line.
+    if (
+      this.source.endsWith('  ') &&
+      source.substring(this.endCursorPosition, this.endCursorPosition + 1) ===
+        '\n'
+    ) {
+      this.source = this.source.trimEnd();
+      this.endCursorPosition -= 2;
+    }
     this.valid = true;
   }
 }
