@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { BoldToken } from '../bold/bold-token';
+import { ItalicIndicator } from '../constants';
 import { PositionInSource, Token, TokenType } from '../token';
+import { createTokenStack } from '../token-factory';
 
 export class ItalicToken implements Token {
   private startCursorPosition: number = 0;
@@ -7,10 +10,10 @@ export class ItalicToken implements Token {
   private valid: boolean = false;
   private name: TokenType = 'italic';
   private source: string = '';
-
+  private processingOrder: TokenType[] = ['text', 'bold'];
   private children: Token[] = [];
   getProcessingOrder(): TokenType[] {
-    return ['bold', 'text'];
+    return this.processingOrder;
   }
   getChildren(): Token[] {
     return this.children;
@@ -28,62 +31,75 @@ export class ItalicToken implements Token {
     return this.name;
   }
   getTokenSource(): string {
-    return this.source.substring(
-      this.startCursorPosition,
-      this.endCursorPosition
-    );
+    return this.source;
   }
 
   getAST(): string {
-    return '';
-  }
-
-  toDebug(): string {
     return JSON.stringify(this);
   }
+
+  private isItalicIndicator(
+    source: string,
+    start: PositionInSource,
+    end: PositionInSource
+  ): boolean {
+    // The italicIndicator can give a false positive with the bold token.
+    // So only check if the next token is not a bold token.
+    const boldToken = new BoldToken();
+    boldToken.compile(source, start, end);
+    if (boldToken.isValid()) {
+      return false;
+    }
+    return (
+      source.substring(start, start + ItalicIndicator.length) ===
+      ItalicIndicator
+    );
+  }
+
+  private areInvalidArgs(
+    source: string,
+    start: PositionInSource,
+    end: PositionInSource
+  ): boolean {
+    return typeof source !== 'string' || start < 0 || end < start;
+  }
+
   compile(
     source: string,
     start: PositionInSource,
     end: PositionInSource
   ): void {
-    this.startCursorPosition = start;
-    this.endCursorPosition = end;
-    this.source = source;
-
-    const rules = [rule_first_and_second_character, rule_minimum_length];
-    if (rules.some((rule) => rule(source, start, end) === false)) {
+    if (
+      this.areInvalidArgs(source, start, end) ||
+      !this.isItalicIndicator(source, start, end)
+    ) {
+      this.valid = false;
       return;
     }
 
-    this.getProcessingOrder().forEach((tokenType) => {
-      switch (tokenType) {
-        case 'italic':
-          break;
-        case 'text':
-          break;
+    this.startCursorPosition = start;
+    this.endCursorPosition = start + ItalicIndicator.length;
+
+    let tokens = createTokenStack(this.processingOrder);
+
+    while (this.endCursorPosition < end) {
+      const token = tokens.pop();
+      token?.compile(source, this.endCursorPosition, end);
+      if (token?.isValid()) {
+        this.children.push(token);
+        tokens = createTokenStack(this.processingOrder);
+        this.endCursorPosition = token.getEndCursorPosition();
+
+        // Is End condition matched.
+        if (this.isItalicIndicator(source, this.endCursorPosition, end)) {
+          this.endCursorPosition += ItalicIndicator.length;
+          this.valid = true;
+          this.source = source.substring(start, this.endCursorPosition);
+          return;
+        }
       }
-    });
-
-    // Next process possible child tokens.
-    this.valid = true;
+    }
+    // If we exit the loop, the token is invalid.
+    this.valid = false;
   }
-}
-
-// First and second character must be *
-function rule_first_and_second_character(
-  source: string,
-  start: PositionInSource,
-  end: PositionInSource
-): boolean {
-  return source.substring(start, start + 1) === '*';
-}
-
-// *i*
-function rule_minimum_length(
-  source: string,
-  start: PositionInSource,
-  end: PositionInSource
-): boolean {
-  const result = end - start > 2;
-  return result;
 }
