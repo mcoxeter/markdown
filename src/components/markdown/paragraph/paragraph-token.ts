@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { EmptyLine, NewLine } from '../constants';
 import { PositionInSource, Token, TokenType } from '../token';
 import { createTokenStack } from '../token-factory';
@@ -44,6 +43,14 @@ export class ParagraphToken implements Token {
     return JSON.stringify(this);
   }
 
+  private areInvalidArgs(
+    source: string,
+    start: PositionInSource,
+    end: PositionInSource
+  ): boolean {
+    return typeof source !== 'string' || start < 0 || end < start;
+  }
+
   private isEndOfParagraph(source: string): boolean {
     return (
       source.substring(this.endCursorPosition, this.endCursorPosition + 2) ===
@@ -60,7 +67,7 @@ export class ParagraphToken implements Token {
     start: PositionInSource,
     end: PositionInSource
   ): void {
-    if (start > end) {
+    if (this.areInvalidArgs(source, start, end)) {
       this.valid = false;
       return;
     }

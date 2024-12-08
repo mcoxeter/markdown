@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { SoftBreak } from '../constants';
 import { PositionInSource, Token, TokenType } from '../token';
 
@@ -44,6 +43,14 @@ export class SoftBreakToken implements Token {
     return JSON.stringify(this);
   }
 
+  private areInvalidArgs(
+    source: string,
+    start: PositionInSource,
+    end: PositionInSource
+  ): boolean {
+    return typeof source !== 'string' || start < 0 || end < start;
+  }
+
   /**
    * Compiles the token from the source text and sets its validity.
    * @param source The source text.
@@ -55,7 +62,7 @@ export class SoftBreakToken implements Token {
     start: PositionInSource,
     end: PositionInSource
   ): void {
-    if (start < 0 || end < 0 || start > end) {
+    if (this.areInvalidArgs(source, start, end)) {
       this.valid = false;
       return;
     }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { PositionInSource, Token, TokenType } from '../token';
 import { createTokenStack } from '../token-factory';
 
@@ -36,6 +35,14 @@ export class MarkdownToken implements Token {
     return JSON.stringify(this);
   }
 
+  private areInvalidArgs(
+    source: string,
+    start: PositionInSource,
+    end: PositionInSource
+  ): boolean {
+    return typeof source !== 'string' || start < 0 || end < start;
+  }
+
   private hasReachedSourceEnd(end: PositionInSource): boolean {
     return this.endCursorPosition >= end;
   }
@@ -45,7 +52,7 @@ export class MarkdownToken implements Token {
     start: PositionInSource,
     end: PositionInSource
   ): void {
-    if (start > end) {
+    if (this.areInvalidArgs(source, start, end)) {
       this.valid = false;
       return;
     }

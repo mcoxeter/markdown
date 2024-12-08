@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { BoldToken } from '../bold/bold-token';
 import { ItalicIndicator } from '../constants';
 import { PositionInSource, Token, TokenType } from '../token';
