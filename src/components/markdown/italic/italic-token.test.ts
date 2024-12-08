@@ -16,7 +16,7 @@ describe('ItalicToken Initialization', () => {
 
 describe('ItalicToken Validation', () => {
   test.each(['*i*', '*This **is** italic*', '*This **is italic and bold***'])(
-    '"%s" should be a valid bold token',
+    '"%s" should be a valid italic token',
     (source) => {
       const italicToken = new ItalicToken();
       italicToken.compile(source, 0, source.length);
