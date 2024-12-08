@@ -9,7 +9,7 @@ export class BoldToken implements Token {
   private valid: boolean = false;
   private name: TokenType = 'bold';
   private source: string = '';
-  private processingOrder: TokenType[] = ['text'];
+  private processingOrder: TokenType[] = ['text', 'italic'];
   private children: Token[] = [];
   getProcessingOrder(): TokenType[] {
     return this.processingOrder;
@@ -37,11 +37,16 @@ export class BoldToken implements Token {
     return JSON.stringify(this);
   }
 
-  private isEndOfBold(source: string): boolean {
-    return (
-      source.substring(this.endCursorPosition, this.endCursorPosition + 2) ===
-      BoldIndicator
-    );
+  private isBoldIndicator(source: string, pos: PositionInSource): boolean {
+    return source.substring(pos, pos + BoldIndicator.length) === BoldIndicator;
+  }
+
+  private areInvalidArgs(
+    source: string,
+    start: PositionInSource,
+    end: PositionInSource
+  ): boolean {
+    return typeof source !== 'string' || start < 0 || end < start;
   }
 
   compile(
@@ -49,60 +54,37 @@ export class BoldToken implements Token {
     start: PositionInSource,
     end: PositionInSource
   ): void {
-    this.startCursorPosition = start;
-    this.endCursorPosition = end;
-    this.source = source;
-
-    const rules = [rule_first_and_second_character, rule_minimum_length];
-    if (rules.some((rule) => rule(source, start, end) === false)) {
+    if (
+      this.areInvalidArgs(source, start, end) ||
+      !this.isBoldIndicator(source, start)
+    ) {
+      this.valid = false;
       return;
     }
 
-    this.valid = true;
-
-    this.endCursorPosition = this.startCursorPosition + 2;
+    this.startCursorPosition = start;
+    this.endCursorPosition = start + BoldIndicator.length;
 
     let tokens = createTokenStack(this.processingOrder);
 
-    while (tokens.length > 0) {
+    while (this.endCursorPosition < end) {
       const token = tokens.pop();
       token?.compile(source, this.endCursorPosition, end);
       if (token?.isValid()) {
         this.children.push(token);
-        tokens = createTokenStack(this.getProcessingOrder());
+        tokens = createTokenStack(this.processingOrder);
         this.endCursorPosition = token.getEndCursorPosition();
 
         // Is End condition matched.
-        if (this.isEndOfBold(source)) {
-          this.endCursorPosition += 2;
+        if (this.isBoldIndicator(source, this.endCursorPosition)) {
+          this.endCursorPosition += BoldIndicator.length;
+          this.valid = true;
           this.source = source.substring(start, this.endCursorPosition);
-          return;
-        }
-
-        if (this.endCursorPosition > end) {
-          this.valid = false;
           return;
         }
       }
     }
+    // If we exit the loop, the token is invalid.
+    this.valid = false;
   }
-}
-
-// First and second character must be *
-function rule_first_and_second_character(
-  source: string,
-  start: PositionInSource,
-  end: PositionInSource
-): boolean {
-  return source.substring(start, start + 2) === BoldIndicator;
-}
-
-// **d**
-function rule_minimum_length(
-  source: string,
-  start: PositionInSource,
-  end: PositionInSource
-): boolean {
-  const result = end - start > 4;
-  return result;
 }
