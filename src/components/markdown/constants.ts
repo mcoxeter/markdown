@@ -6,3 +6,4 @@ export const NewLine = '\n';
 export const SoftBreak = ' ';
 export const BoldIndicator = '**';
 export const ItalicIndicator = '*';
+export const HeadingIndicator = '#';
