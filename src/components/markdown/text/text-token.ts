@@ -1,6 +1,26 @@
 import { Backtick, Hash, NewLine, Star } from '../constants';
 import { PositionInSource, Token, TokenType } from '../token';
 
+/**
+ * The TextToken class represents a token for parsing and compiling plain text in markdown syntax.
+ * It processes non-formatted text, which serves as the foundational content between other markdown elements.
+ *
+ * This class implements the Token interface and provides the following functionality:
+ * - Identifies and compiles plain text while avoiding termination characters (e.g., *, #, `) and line breaks.
+ * - Tracks the start and end positions of the text in the source content.
+ * - Validates the token to ensure it represents meaningful content.
+ * - Handles special cases such as consecutive termination characters and trailing spaces before a line break.
+ * - Outputs an abstract syntax tree (AST) representation of the text token.
+ *
+ * Use this class in a markdown parser as the base token to process and validate plain text content,
+ * ensuring proper integration with other tokens in the processing order.
+ *
+ * Tokens are processed in a specific order and the TextToken is the last in the line.
+ * A TextToken has no child tokens.
+ *
+ * Example of a paragraph in markdown:
+ * some text
+ */
 export class TextToken implements Token {
   private startCursorPosition: number = 0;
   private endCursorPosition: number = 0;
@@ -111,6 +131,6 @@ export class TextToken implements Token {
       this.source = this.source.trimEnd();
       this.endCursorPosition -= 2;
     }
-    this.valid = true;
+    this.valid = this.source.length > 0;
   }
 }

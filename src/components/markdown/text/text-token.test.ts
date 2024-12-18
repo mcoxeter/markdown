@@ -41,7 +41,6 @@ describe('TextToken Tests', () => {
   test.each([
     ['the *b* quick brown 1. fox', 'the '],
     ['This is a simple text', 'This is a simple text'],
-    ['', ''],
     ['This is a #header', 'This is a '],
     ['This is a `Some code`', 'This is a '],
     ['*a', '*'],
@@ -84,10 +83,10 @@ describe('TextToken Tests', () => {
     expect(textToken.getTokenSource()).toBe('');
   });
 
-  test('TextToken handles empty string', () => {
+  test('TextToken does not accept empty string', () => {
     const textToken = new TextToken();
     textToken.compile('', 0, 0);
-    expect(textToken.isValid()).toBe(true);
+    expect(textToken.isValid()).toBe(false);
     expect(textToken.getTokenSource()).toBe('');
   });
 
@@ -125,7 +124,7 @@ describe('TextToken Tests', () => {
     [-1, 0, false, 'is neg is not allowed'],
     [10, -6, false, 'is neg is not allowed'],
     [2, 1, false, 'end is less than start'],
-    [2, 2, true, 'its ok to have the two the same']
+    [2, 2, false, 'its not ok to have the two the same']
   ])(
     'TextToken start %d and end %s is considered valid === %s, because %s',
     (start, end, valid) => {

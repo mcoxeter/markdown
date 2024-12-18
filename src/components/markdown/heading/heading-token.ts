@@ -2,6 +2,30 @@ import { HeadingIndicator, NewLine } from '../constants';
 import { PositionInSource, Token, TokenType } from '../token';
 import { createTokenStack } from '../token-factory';
 
+/**
+ * The HeadingToken class represents a token for parsing and compiling markdown headings.
+ * It identifies and processes heading syntax (e.g., #, ##, ###) and its content, including any nested formatting.
+ *
+ * This class implements the Token interface and provides the following functionality:
+ * - Detects markdown heading indicators (#) and determines the heading level (1-6).
+ * - Verifies the validity of heading syntax (e.g., ensuring it is followed by a space).
+ * - Tracks the start and end positions of the heading in the source text.
+ * - Processes child tokens (e.g., bold, italic, text) within the heading content.
+ * - Outputs an abstract syntax tree (AST) representation of the heading token, including its level and child tokens.
+ *
+ * Use this class in a markdown parser to handle and validate heading structures, ensuring proper syntax and nesting.
+ *
+ * Examples of a heading in markdown:
+ * # Heading level 1
+ * ## Heading level 2
+ * ...
+ * ###### Heading level 6
+ *
+ * Heading can be mixed with bold and italic like this.
+ * # Heading **level 1**
+ * # Heading *level 1*
+ * # Heading ***level** 1*
+ */
 export class HeadingToken implements Token {
   private startCursorPosition: number = 0;
   private endCursorPosition: number = 0;
