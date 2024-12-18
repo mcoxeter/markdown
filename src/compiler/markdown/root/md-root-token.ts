@@ -1,8 +1,8 @@
 import { PositionInSource, Token, TokenType } from '../../token';
-import { createTokenStack } from '../token-factory';
+import { createMDTokenStack } from '../token-factory';
 
 /**
- * The MarkdownToken class serves as the root token in a markdown parser, representing the entirety of a markdown document.
+ * The MDRootToken class serves as the root token in a markdown parser, representing the entirety of a markdown document.
  *
  * This class is responsible for:
  * - Orchestrating the parsing process by delegating to child tokens, such as paragraphs, headings, or inline elements, in a specified processing order.
@@ -13,7 +13,7 @@ import { createTokenStack } from '../token-factory';
  * The MarkdownToken acts as the entry point for parsing a markdown source string, ensuring all nested tokens are processed and assembled into a cohesive token tree.
  * Use this class in markdown parsers to handle and process the entire markdown content.
  */
-export class MarkdownToken implements Token {
+export class MDRootToken implements Token {
   private startCursorPosition: number = 0;
   private endCursorPosition: number = 0;
   private valid: boolean = false;
@@ -72,14 +72,14 @@ export class MarkdownToken implements Token {
     this.endCursorPosition = this.startCursorPosition;
     this.valid = true;
 
-    let tokens = createTokenStack(this.processingOrder);
+    let tokens = createMDTokenStack(this.processingOrder);
 
     while (tokens.length > 0) {
       const token = tokens.pop();
       token?.compile(source, this.endCursorPosition, end);
       if (token?.isValid()) {
         this.children.push(token);
-        tokens = createTokenStack(this.processingOrder);
+        tokens = createMDTokenStack(this.processingOrder);
         this.endCursorPosition = token.getEndCursorPosition();
 
         // Exit condition 1: Reached the end of the source.

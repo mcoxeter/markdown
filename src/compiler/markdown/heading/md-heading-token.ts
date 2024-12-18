@@ -1,9 +1,9 @@
 import { HeadingIndicator, NewLine } from '../constants';
 import { PositionInSource, Token, TokenType } from '../../token';
-import { createTokenStack } from '../token-factory';
+import { createMDTokenStack } from '../token-factory';
 
 /**
- * The HeadingToken class represents a token for parsing and compiling markdown headings.
+ * The MDHeadingToken class represents a token for parsing and compiling markdown headings.
  * It identifies and processes heading syntax (e.g., #, ##, ###) and its content, including any nested formatting.
  *
  * This class implements the Token interface and provides the following functionality:
@@ -26,7 +26,7 @@ import { createTokenStack } from '../token-factory';
  * # Heading *level 1*
  * # Heading ***level** 1*
  */
-export class HeadingToken implements Token {
+export class MDHeadingToken implements Token {
   private startCursorPosition: number = 0;
   private endCursorPosition: number = 0;
   private valid: boolean = false;
@@ -127,14 +127,14 @@ export class HeadingToken implements Token {
     }
 
     // Process children tokens.
-    let tokens = createTokenStack(this.processingOrder);
+    let tokens = createMDTokenStack(this.processingOrder);
 
     while (this.endCursorPosition < end) {
       const token = tokens.pop();
       token?.compile(source, this.endCursorPosition, end);
       if (token?.isValid()) {
         this.children.push(token);
-        tokens = createTokenStack(this.processingOrder);
+        tokens = createMDTokenStack(this.processingOrder);
         this.endCursorPosition = token.getEndCursorPosition();
 
         // Check for the end of the heading.

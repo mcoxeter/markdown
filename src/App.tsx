@@ -1,7 +1,9 @@
 import { useState, useCallback } from 'react';
 
 function App() {
-  const [content, setContent] = useState('Click <b>here</b> to edit me!');
+  const [content, setContent] = useState(
+    'This is <b>bold and <i>italic</i></b>'
+  );
   const handleInput = useCallback(
     (e: React.FormEvent<HTMLDivElement>) => {
       const selection = window.getSelection();

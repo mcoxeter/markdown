@@ -1,9 +1,9 @@
 import { expect, test, describe } from 'vitest';
-import { BoldToken } from './bold-token';
+import { MDBoldToken } from './md-bold-token';
 
-describe('BoldToken Initialization', () => {
-  test('should initialize correctly', () => {
-    const boldToken = new BoldToken();
+describe('MDBoldToken Initialization', () => {
+  test('MDBoldToken should initialize correctly', () => {
+    const boldToken = new MDBoldToken();
     expect(boldToken.getChildren()).toStrictEqual([]);
     expect(boldToken.getEndCursorPosition()).toBe(0);
     expect(boldToken.getStartCursorPosition()).toBe(0);
@@ -14,11 +14,11 @@ describe('BoldToken Initialization', () => {
   });
 });
 
-describe('BoldToken Validation', () => {
+describe('MDBoldToken Validation', () => {
   test.each(['**b**', '**This *is* bold**', '**This *is bold***'])(
-    '"%s" should be a valid bold token',
+    'MDBoldToken "%s" should be a valid bold token',
     (source) => {
-      const boldToken = new BoldToken();
+      const boldToken = new MDBoldToken();
       boldToken.compile(source, 0, source.length);
       expect(boldToken.isValid()).toBeTruthy();
       expect(boldToken.getTokenSource()).toBe(source);
@@ -35,15 +35,15 @@ describe('BoldToken Validation', () => {
     '****', // Only indicators
     '**This is bold', // Missing closing indicator
     'Text **bold** text' // Not at the start
-  ])('"%s" should be an invalid bold token', (source) => {
-    const boldToken = new BoldToken();
+  ])('MDBoldToken "%s" should be an invalid bold token', (source) => {
+    const boldToken = new MDBoldToken();
     boldToken.compile(source, 0, source.length);
     expect(boldToken.isValid()).toBeFalsy();
   });
 
-  test('should handle tokens with invalid ranges', () => {
+  test('MDBoldToken should handle tokens with invalid ranges', () => {
     const source = '**b**';
-    const boldToken = new BoldToken();
+    const boldToken = new MDBoldToken();
     boldToken.compile(source, -1, source.length); // Invalid start
     expect(boldToken.isValid()).toBeFalsy();
 
@@ -54,8 +54,8 @@ describe('BoldToken Validation', () => {
     expect(boldToken.isValid()).toBeFalsy();
   });
 
-  test('should handle empty or whitespace-only input', () => {
-    const boldToken = new BoldToken();
+  test('MDBoldToken should handle empty or whitespace-only input', () => {
+    const boldToken = new MDBoldToken();
     boldToken.compile('', 0, 0);
     expect(boldToken.isValid()).toBeFalsy();
 
@@ -63,8 +63,8 @@ describe('BoldToken Validation', () => {
     expect(boldToken.isValid()).toBeFalsy();
   });
 
-  test('should handle italic within', () => {
-    const boldToken = new BoldToken();
+  test('MDBoldToken should handle italic within', () => {
+    const boldToken = new MDBoldToken();
     const source = '**This is *italic* in the middle**';
     boldToken.compile(source, 0, source.length);
     expect(boldToken.isValid()).toBeTruthy();
@@ -77,9 +77,9 @@ describe('BoldToken Validation', () => {
     expect(children[2].getName()).toStrictEqual('text');
   });
 
-  test('should correctly set start and end cursor positions for valid tokens', () => {
+  test('MDBoldToken should correctly set start and end cursor positions for valid tokens', () => {
     const source = '**bold**';
-    const boldToken = new BoldToken();
+    const boldToken = new MDBoldToken();
     boldToken.compile(source, 0, source.length);
 
     expect(boldToken.isValid()).toBeTruthy();

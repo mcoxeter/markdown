@@ -1,10 +1,10 @@
-import { BoldToken } from '../bold/bold-token';
+import { MDBoldToken } from '../bold/md-bold-token';
 import { ItalicIndicator } from '../constants';
 import { PositionInSource, Token, TokenType } from '../../token';
-import { createTokenStack } from '../token-factory';
+import { createMDTokenStack } from '../token-factory';
 
 /**
- * The ItalicToken class represents a token for parsing and compiling italicized text in markdown syntax.
+ * The MDItalicToken class represents a token for parsing and compiling italicized text in markdown syntax.
  * It identifies and processes text wrapped with the markdown italic indicator (e.g., *).
  *
  * This class implements the Token interface and provides the following functionality:
@@ -21,7 +21,7 @@ import { createTokenStack } from '../token-factory';
  * Italic can be mixed with bold like this.
  * *Italic and **bold***
  */
-export class ItalicToken implements Token {
+export class MDItalicToken implements Token {
   private startCursorPosition: number = 0;
   private endCursorPosition: number = 0;
   private valid: boolean = false;
@@ -62,7 +62,7 @@ export class ItalicToken implements Token {
   ): boolean {
     // The italicIndicator can give a false positive with the bold token.
     // So only check if the next token is not a bold token.
-    const boldToken = new BoldToken();
+    const boldToken = new MDBoldToken();
     boldToken.compile(source, start, end);
     if (boldToken.isValid()) {
       return false;
@@ -97,14 +97,14 @@ export class ItalicToken implements Token {
     this.startCursorPosition = start;
     this.endCursorPosition = start + ItalicIndicator.length;
 
-    let tokens = createTokenStack(this.processingOrder);
+    let tokens = createMDTokenStack(this.processingOrder);
 
     while (this.endCursorPosition < end) {
       const token = tokens.pop();
       token?.compile(source, this.endCursorPosition, end);
       if (token?.isValid()) {
         this.children.push(token);
-        tokens = createTokenStack(this.processingOrder);
+        tokens = createMDTokenStack(this.processingOrder);
         this.endCursorPosition = token.getEndCursorPosition();
 
         // Is End condition matched.

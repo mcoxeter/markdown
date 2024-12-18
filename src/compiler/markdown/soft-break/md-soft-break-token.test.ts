@@ -1,9 +1,9 @@
 import { expect, test, describe } from 'vitest';
-import { SoftBreakToken } from './soft-break-token';
+import { MDSoftBreakToken } from './md-soft-break-token';
 
-describe('SoftBreakToken Tests', () => {
-  test('SoftBreakToken initializes correctly', () => {
-    const softbreakToken = new SoftBreakToken();
+describe('MDSoftBreakToken Tests', () => {
+  test('MDSoftBreakToken initializes correctly', () => {
+    const softbreakToken = new MDSoftBreakToken();
     expect(softbreakToken.getChildren()).toStrictEqual([]);
     expect(softbreakToken.getEndCursorPosition()).toBe(0);
     expect(softbreakToken.getStartCursorPosition()).toBe(0);
@@ -13,14 +13,14 @@ describe('SoftBreakToken Tests', () => {
     expect(softbreakToken.getName()).toBe('soft-break');
   });
 
-  test('SoftBreakToken has a text child after compilation', () => {
-    const softbreakToken = new SoftBreakToken();
+  test('MDSoftBreakToken has a text child after compilation', () => {
+    const softbreakToken = new MDSoftBreakToken();
     softbreakToken.compile('not a softbreak', 0, 15);
     expect(softbreakToken.isValid()).toBe(false);
   });
 
-  test('SoftBreakToken has a two spaces', () => {
-    const softbreakToken = new SoftBreakToken();
+  test('MDSoftBreakToken has a two spaces', () => {
+    const softbreakToken = new MDSoftBreakToken();
     softbreakToken.compile('  ', 0, 2);
     expect(softbreakToken.isValid()).toBe(true);
   });

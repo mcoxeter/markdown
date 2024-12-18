@@ -1,9 +1,9 @@
 import { expect, test, describe } from 'vitest';
-import { ItalicToken } from './italic-token';
+import { MDItalicToken } from './md-italic-token';
 
-describe('ItalicToken Initialization', () => {
-  test('should initialize correctly', () => {
-    const italicToken = new ItalicToken();
+describe('MDItalicToken Initialization', () => {
+  test('MDItalicToken should initialize correctly', () => {
+    const italicToken = new MDItalicToken();
     expect(italicToken.getChildren()).toStrictEqual([]);
     expect(italicToken.getEndCursorPosition()).toBe(0);
     expect(italicToken.getStartCursorPosition()).toBe(0);
@@ -14,11 +14,11 @@ describe('ItalicToken Initialization', () => {
   });
 });
 
-describe('ItalicToken Validation', () => {
+describe('MDItalicToken Validation', () => {
   test.each(['*i*', '*This **is** italic*', '*This **is italic and bold***'])(
-    '"%s" should be a valid italic token',
+    'MDItalicToken "%s" should be a valid italic token',
     (source) => {
-      const italicToken = new ItalicToken();
+      const italicToken = new MDItalicToken();
       italicToken.compile(source, 0, source.length);
       expect(italicToken.isValid()).toBeTruthy();
       expect(italicToken.getTokenSource()).toBe(source);
@@ -35,15 +35,15 @@ describe('ItalicToken Validation', () => {
     '**', // Only indicators
     '*This is italic', // Missing closing indicator
     'Text *italic* text' // Not at the start
-  ])('"%s" should be an invalid italic token', (source) => {
-    const italicToken = new ItalicToken();
+  ])('MDItalicToken "%s" should be an invalid italic token', (source) => {
+    const italicToken = new MDItalicToken();
     italicToken.compile(source, 0, source.length);
     expect(italicToken.isValid()).toBeFalsy();
   });
 
-  test('should handle tokens with invalid ranges', () => {
+  test('MDItalicToken should handle tokens with invalid ranges', () => {
     const source = '*i*';
-    const italicToken = new ItalicToken();
+    const italicToken = new MDItalicToken();
     italicToken.compile(source, -1, source.length); // Invalid start
     expect(italicToken.isValid()).toBeFalsy();
 
@@ -54,8 +54,8 @@ describe('ItalicToken Validation', () => {
     expect(italicToken.isValid()).toBeFalsy();
   });
 
-  test('should handle empty or whitespace-only input', () => {
-    const italicToken = new ItalicToken();
+  test('MDItalicToken should handle empty or whitespace-only input', () => {
+    const italicToken = new MDItalicToken();
     italicToken.compile('', 0, 0);
     expect(italicToken.isValid()).toBeFalsy();
 
@@ -63,8 +63,8 @@ describe('ItalicToken Validation', () => {
     expect(italicToken.isValid()).toBeFalsy();
   });
 
-  test('should handle bold within', () => {
-    const italicToken = new ItalicToken();
+  test('MDItalicToken should handle bold within', () => {
+    const italicToken = new MDItalicToken();
     const source = '*This is **bold** in the middle*';
     italicToken.compile(source, 0, source.length);
     expect(italicToken.isValid()).toBeTruthy();
@@ -77,9 +77,9 @@ describe('ItalicToken Validation', () => {
     expect(children[2].getName()).toStrictEqual('text');
   });
 
-  test('should correctly set start and end cursor positions for valid tokens', () => {
+  test('MDItalicToken should correctly set start and end cursor positions for valid tokens', () => {
     const source = '*italic*';
-    const italicToken = new ItalicToken();
+    const italicToken = new MDItalicToken();
     italicToken.compile(source, 0, source.length);
 
     expect(italicToken.isValid()).toBeTruthy();
