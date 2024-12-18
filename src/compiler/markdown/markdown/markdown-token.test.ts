@@ -10,7 +10,7 @@ describe('MarkdownToken Tests', () => {
     expect(markdownToken.isValid()).toBe(false);
     expect(markdownToken.getProcessingOrder()).toStrictEqual(['paragraph']);
     expect(markdownToken.getTokenSource()).toBe('');
-    expect(markdownToken.getName()).toBe('markdown');
+    expect(markdownToken.getName()).toBe('root');
   });
 
   test('MarkdownToken compiles to two paragraphs', () => {

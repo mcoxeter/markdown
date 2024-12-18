@@ -1,5 +1,5 @@
 import { Backtick, Hash, NewLine, Star } from '../constants';
-import { PositionInSource, Token, TokenType } from '../token';
+import { PositionInSource, Token, TokenType } from '../../token';
 
 /**
  * The TextToken class represents a token for parsing and compiling plain text in markdown syntax.

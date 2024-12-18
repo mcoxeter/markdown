@@ -1,5 +1,5 @@
 export type TokenType =
-  | 'markdown'
+  | 'root'
   | 'bold'
   | 'italic'
   | 'paragraph'

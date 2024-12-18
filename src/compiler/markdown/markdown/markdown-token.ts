@@ -1,44 +1,35 @@
-import { EmptyLine, NewLine } from '../constants';
-import { PositionInSource, Token, TokenType } from '../token';
+import { PositionInSource, Token, TokenType } from '../../token';
 import { createTokenStack } from '../token-factory';
 
 /**
+ * The MarkdownToken class serves as the root token in a markdown parser, representing the entirety of a markdown document.
  *
+ * This class is responsible for:
+ * - Orchestrating the parsing process by delegating to child tokens, such as paragraphs, headings, or inline elements, in a specified processing order.
+ * - Managing the start and end positions of the parsed document within the source text.
+ * - Validating the structure of the markdown content and compiling it into a hierarchical structure of child tokens.
+ * - Providing an abstract syntax tree (AST) representation of the parsed markdown document for further processing or rendering.
  *
- * Example of a paragraph in markdown (paragraphs are seperated by one or more blank lines):
- * a paragraph
- *
- * a second paragraph
+ * The MarkdownToken acts as the entry point for parsing a markdown source string, ensuring all nested tokens are processed and assembled into a cohesive token tree.
+ * Use this class in markdown parsers to handle and process the entire markdown content.
  */
-export class ParagraphToken implements Token {
+export class MarkdownToken implements Token {
   private startCursorPosition: number = 0;
   private endCursorPosition: number = 0;
   private valid: boolean = false;
-  private name: TokenType = 'paragraph';
+  private name: TokenType = 'root';
   private source: string = '';
-  private proccessingOrder: TokenType[] = [
-    'bold',
-    'italic',
-    'soft-break',
-    'text'
-  ];
-
+  private processingOrder: TokenType[] = ['paragraph'];
   private children: Token[] = [];
-  /**
-   * Specifies the order in which this token processes child tokens.
-   */
   getProcessingOrder(): TokenType[] {
-    return this.proccessingOrder;
+    return this.processingOrder;
   }
-
   getChildren(): Token[] {
     return this.children;
   }
-
   getStartCursorPosition(): PositionInSource {
     return this.startCursorPosition;
   }
-
   getEndCursorPosition(): PositionInSource {
     return this.endCursorPosition;
   }
@@ -64,13 +55,6 @@ export class ParagraphToken implements Token {
     return typeof source !== 'string' || start < 0 || end < start;
   }
 
-  private isEndOfParagraph(source: string): boolean {
-    return (
-      source.substring(this.endCursorPosition, this.endCursorPosition + 2) ===
-      EmptyLine
-    );
-  }
-
   private hasReachedSourceEnd(end: PositionInSource): boolean {
     return this.endCursorPosition >= end;
   }
@@ -88,36 +72,23 @@ export class ParagraphToken implements Token {
     this.endCursorPosition = this.startCursorPosition;
     this.valid = true;
 
-    let tokens = createTokenStack(this.getProcessingOrder());
+    let tokens = createTokenStack(this.processingOrder);
 
     while (tokens.length > 0) {
       const token = tokens.pop();
       token?.compile(source, this.endCursorPosition, end);
       if (token?.isValid()) {
         this.children.push(token);
-        tokens = createTokenStack(this.getProcessingOrder());
+        tokens = createTokenStack(this.processingOrder);
         this.endCursorPosition = token.getEndCursorPosition();
 
-        // Exit condition 1: End of paragraph (empty line).
-        if (this.isEndOfParagraph(source)) {
-          this.source = source.substring(start, this.endCursorPosition);
-          this.endCursorPosition += 2; // Move past the empty line.
-          return;
-        }
-
-        // Exit condition 2: Reached the end of the source.
+        // Exit condition 1: Reached the end of the source.
         if (this.hasReachedSourceEnd(end)) {
-          this.source = source.substring(start, this.endCursorPosition);
+          this.source = source.substring(
+            token.getStartCursorPosition(),
+            this.endCursorPosition
+          );
           return;
-        }
-
-        if (
-          source.substring(
-            this.endCursorPosition,
-            this.endCursorPosition + 1
-          ) === NewLine
-        ) {
-          this.endCursorPosition++; // Move past NewLine.
         }
       }
     }
