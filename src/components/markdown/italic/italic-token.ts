@@ -3,6 +3,24 @@ import { ItalicIndicator } from '../constants';
 import { PositionInSource, Token, TokenType } from '../token';
 import { createTokenStack } from '../token-factory';
 
+/**
+ * The ItalicToken class represents a token for parsing and compiling italicized text in markdown syntax.
+ * It identifies and processes text wrapped with the markdown italic indicator (e.g., *).
+ *
+ * This class implements the Token interface and provides the following functionality:
+ * - Detects and validates the italic syntax while ensuring it does not conflict with bold formatting.
+ * - Tracks the start and end positions of the italic syntax in the source text.
+ * - Compiles the italic token, processes nested or child tokens (e.g., bold, plain text), and validates the token structure.
+ * - Outputs an abstract syntax tree (AST) representation of the italic token, including its child tokens.
+ *
+ * Use this class in a markdown parser to handle and validate italic text, supporting proper nesting with other formatting like bold.
+ *
+ * Example of italic text in markdown:
+ * *Italic text*
+ *
+ * Italic can be mixed with bold like this.
+ * *Italic and **bold***
+ */
 export class ItalicToken implements Token {
   private startCursorPosition: number = 0;
   private endCursorPosition: number = 0;

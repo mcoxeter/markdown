@@ -1,6 +1,18 @@
 import { PositionInSource, Token, TokenType } from '../token';
 import { createTokenStack } from '../token-factory';
 
+/**
+ * The MarkdownToken class serves as the root token in a markdown parser, representing the entirety of a markdown document.
+ *
+ * This class is responsible for:
+ * - Orchestrating the parsing process by delegating to child tokens, such as paragraphs, headings, or inline elements, in a specified processing order.
+ * - Managing the start and end positions of the parsed document within the source text.
+ * - Validating the structure of the markdown content and compiling it into a hierarchical structure of child tokens.
+ * - Providing an abstract syntax tree (AST) representation of the parsed markdown document for further processing or rendering.
+ *
+ * The MarkdownToken acts as the entry point for parsing a markdown source string, ensuring all nested tokens are processed and assembled into a cohesive token tree.
+ * Use this class in markdown parsers to handle and process the entire markdown content.
+ */
 export class MarkdownToken implements Token {
   private startCursorPosition: number = 0;
   private endCursorPosition: number = 0;

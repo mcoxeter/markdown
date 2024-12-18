@@ -2,13 +2,26 @@ import { EmptyLine, NewLine } from '../constants';
 import { PositionInSource, Token, TokenType } from '../token';
 import { createTokenStack } from '../token-factory';
 
+/**
+ *
+ *
+ * Example of a paragraph in markdown (paragraphs are seperated by one or more blank lines):
+ * a paragraph
+ *
+ * a second paragraph
+ */
 export class ParagraphToken implements Token {
   private startCursorPosition: number = 0;
   private endCursorPosition: number = 0;
   private valid: boolean = false;
   private name: TokenType = 'paragraph';
   private source: string = '';
-  private proccessingOrder: TokenType[] = ['text', 'soft-break'];
+  private proccessingOrder: TokenType[] = [
+    'bold',
+    'italic',
+    'soft-break',
+    'text'
+  ];
 
   private children: Token[] = [];
   /**
