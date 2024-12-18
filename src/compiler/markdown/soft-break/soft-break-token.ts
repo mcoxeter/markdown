@@ -1,5 +1,5 @@
 import { SoftBreak } from '../constants';
-import { PositionInSource, Token, TokenType } from '../token';
+import { PositionInSource, Token, TokenType } from '../../token';
 
 /**
  * The SoftBreakToken class represents a token for identifying and processing soft breaks in markdown syntax.

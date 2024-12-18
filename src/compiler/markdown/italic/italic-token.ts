@@ -1,6 +1,6 @@
 import { BoldToken } from '../bold/bold-token';
 import { ItalicIndicator } from '../constants';
-import { PositionInSource, Token, TokenType } from '../token';
+import { PositionInSource, Token, TokenType } from '../../token';
 import { createTokenStack } from '../token-factory';
 
 /**

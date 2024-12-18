@@ -1,5 +1,5 @@
 import { BoldIndicator } from '../constants';
-import { PositionInSource, Token, TokenType } from '../token';
+import { PositionInSource, Token, TokenType } from '../../token';
 import { createTokenStack } from '../token-factory';
 
 /**

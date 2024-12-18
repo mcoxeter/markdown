@@ -3,7 +3,9 @@ import { ItalicToken } from './italic/italic-token';
 import { ParagraphToken } from './paragraph/paragraph-token';
 import { SoftBreakToken } from './soft-break/soft-break-token';
 import { TextToken } from './text/text-token';
-import { TokenType, Token } from './token';
+import { TokenType, Token } from '../token';
+import { HeadingToken } from './heading/heading-token';
+import { MarkdownToken } from './markdown/markdown-token';
 
 /**
  * Creates a stack of tokens based on the provided token types.
@@ -14,8 +16,10 @@ import { TokenType, Token } from './token';
  */
 export function createTokenStack(tokenTypes: TokenType[]): Token[] {
   const tokenFactory = new Map<TokenType, () => Token>([
-    ['italic', () => new ItalicToken()],
     ['bold', () => new BoldToken()],
+    ['heading', () => new HeadingToken()],
+    ['italic', () => new ItalicToken()],
+    ['root', () => new MarkdownToken()],
     ['text', () => new TextToken()],
     ['paragraph', () => new ParagraphToken()],
     ['soft-break', () => new SoftBreakToken()]
