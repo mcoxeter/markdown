@@ -1,11 +1,11 @@
-import { BoldToken } from './bold/bold-token';
-import { ItalicToken } from './italic/italic-token';
-import { ParagraphToken } from './paragraph/paragraph-token';
-import { SoftBreakToken } from './soft-break/soft-break-token';
-import { TextToken } from './text/text-token';
+import { MDBoldToken } from './bold/md-bold-token';
+import { MDItalicToken } from './italic/md-italic-token';
+import { MDParagraphToken } from './paragraph/md-paragraph-token';
+import { MDSoftBreakToken } from './soft-break/md-soft-break-token';
+import { MDTextToken } from './text/md-text-token';
 import { TokenType, Token } from '../token';
-import { HeadingToken } from './heading/heading-token';
-import { MarkdownToken } from './markdown/markdown-token';
+import { MDHeadingToken } from './heading/md-heading-token';
+import { MDRootToken } from './root/md-root-token';
 
 /**
  * Creates a stack of tokens based on the provided token types.
@@ -14,15 +14,15 @@ import { MarkdownToken } from './markdown/markdown-token';
  * @returns An array of token instances corresponding to the provided types.
  * @throws An error if an unsupported token type is encountered.
  */
-export function createTokenStack(tokenTypes: TokenType[]): Token[] {
+export function createMDTokenStack(tokenTypes: TokenType[]): Token[] {
   const tokenFactory = new Map<TokenType, () => Token>([
-    ['bold', () => new BoldToken()],
-    ['heading', () => new HeadingToken()],
-    ['italic', () => new ItalicToken()],
-    ['root', () => new MarkdownToken()],
-    ['text', () => new TextToken()],
-    ['paragraph', () => new ParagraphToken()],
-    ['soft-break', () => new SoftBreakToken()]
+    ['bold', () => new MDBoldToken()],
+    ['heading', () => new MDHeadingToken()],
+    ['italic', () => new MDItalicToken()],
+    ['root', () => new MDRootToken()],
+    ['text', () => new MDTextToken()],
+    ['paragraph', () => new MDParagraphToken()],
+    ['soft-break', () => new MDSoftBreakToken()]
   ]);
 
   return tokenTypes.reverse().map((tokenType) => {

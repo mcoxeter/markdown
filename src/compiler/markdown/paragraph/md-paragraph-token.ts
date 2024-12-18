@@ -1,6 +1,6 @@
 import { EmptyLine, NewLine } from '../constants';
 import { PositionInSource, Token, TokenType } from '../../token';
-import { createTokenStack } from '../token-factory';
+import { createMDTokenStack } from '../token-factory';
 
 /**
  *
@@ -10,7 +10,7 @@ import { createTokenStack } from '../token-factory';
  *
  * a second paragraph
  */
-export class ParagraphToken implements Token {
+export class MDParagraphToken implements Token {
   private startCursorPosition: number = 0;
   private endCursorPosition: number = 0;
   private valid: boolean = false;
@@ -88,14 +88,14 @@ export class ParagraphToken implements Token {
     this.endCursorPosition = this.startCursorPosition;
     this.valid = true;
 
-    let tokens = createTokenStack(this.getProcessingOrder());
+    let tokens = createMDTokenStack(this.getProcessingOrder());
 
     while (tokens.length > 0) {
       const token = tokens.pop();
       token?.compile(source, this.endCursorPosition, end);
       if (token?.isValid()) {
         this.children.push(token);
-        tokens = createTokenStack(this.getProcessingOrder());
+        tokens = createMDTokenStack(this.getProcessingOrder());
         this.endCursorPosition = token.getEndCursorPosition();
 
         // Exit condition 1: End of paragraph (empty line).

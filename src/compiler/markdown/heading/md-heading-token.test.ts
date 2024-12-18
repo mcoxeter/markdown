@@ -1,9 +1,9 @@
 import { expect, test, describe } from 'vitest';
-import { HeadingToken } from './heading-token';
+import { MDHeadingToken } from './md-heading-token';
 
-describe('HeadingToken Initialization', () => {
-  test('should initialize correctly', () => {
-    const headingToken = new HeadingToken();
+describe('MDHeadingToken Initialization', () => {
+  test('MDHeadingToken should initialize correctly', () => {
+    const headingToken = new MDHeadingToken();
     expect(headingToken.getChildren()).toStrictEqual([]);
     expect(headingToken.getEndCursorPosition()).toBe(0);
     expect(headingToken.getStartCursorPosition()).toBe(0);
@@ -18,14 +18,14 @@ describe('HeadingToken Initialization', () => {
   });
 });
 
-describe('HeadingToken Validation', () => {
+describe('MDHeadingToken Validation', () => {
   test.each([
     ['# Heading 1', 1],
     ['## Heading 2', 2],
     ['### Heading 3', 3],
     ['#### **Bold Heading**', 4]
-  ])('"%s" should be a valid italic token', (source, level) => {
-    const headingToken = new HeadingToken();
+  ])('MDHeadingToken "%s" should be a valid italic token', (source, level) => {
+    const headingToken = new MDHeadingToken();
     headingToken.compile(source, 0, source.length);
     expect(headingToken.isValid()).toBeTruthy();
     expect(headingToken.getHeadingLevel()).toBe(level);
@@ -39,8 +39,8 @@ describe('HeadingToken Validation', () => {
     ['#', 'Heading not formed correctly'],
     ['', 'Empty string'],
     ['######', 'Heading level only without content']
-  ])('"%s" should be invalid: %s', (source) => {
-    const headingToken = new HeadingToken();
+  ])('MDHeadingToken "%s" should be invalid: %s', (source) => {
+    const headingToken = new MDHeadingToken();
     headingToken.compile(source, 0, source.length);
 
     expect(headingToken.isValid()).toBeFalsy();
@@ -49,9 +49,9 @@ describe('HeadingToken Validation', () => {
     expect(headingToken.getTokenSource()).toBe('');
   });
 
-  test('should handle partial valid headers gracefully', () => {
+  test('MDHeadingToken should handle partial valid headers gracefully', () => {
     const source = '### Heading\nInvalid Content';
-    const headingToken = new HeadingToken();
+    const headingToken = new MDHeadingToken();
     headingToken.compile(source, 0, source.length);
 
     expect(headingToken.isValid()).toBeTruthy();
@@ -65,18 +65,18 @@ describe('HeadingToken Validation', () => {
     ['# Heading', 0, 10, true],
     ['some text\n# Heading', 10, 19, true]
   ])(
-    'Headings are only valid at the start text or at the start of a new line',
+    'MDHeadingToken are only valid at the start text or at the start of a new line',
     (src, start, end, valid) => {
-      const headingToken = new HeadingToken();
+      const headingToken = new MDHeadingToken();
       headingToken.compile(src, start, end);
 
       expect(headingToken.isValid()).toBe(valid);
     }
   );
 
-  test('should handle tokens with invalid ranges', () => {
+  test('MDHeadingToken should handle tokens with invalid ranges', () => {
     const source = '*i*';
-    const headingToken = new HeadingToken();
+    const headingToken = new MDHeadingToken();
     headingToken.compile(source, -1, source.length); // Invalid start
     expect(headingToken.isValid()).toBeFalsy();
 

@@ -1,9 +1,9 @@
 import { expect, test, describe } from 'vitest';
-import { TextToken } from './text-token';
+import { MDTextToken } from './md-text-token';
 
-describe('TextToken Tests', () => {
-  test('TextToken initializes correctly', () => {
-    const textToken = new TextToken();
+describe('MDTextToken Tests', () => {
+  test('MDTextToken initializes correctly', () => {
+    const textToken = new MDTextToken();
     expect(textToken.getChildren()).toStrictEqual([]);
     expect(textToken.getEndCursorPosition()).toBe(0);
     expect(textToken.getStartCursorPosition()).toBe(0);
@@ -13,26 +13,26 @@ describe('TextToken Tests', () => {
     expect(textToken.getName()).toBe('text');
   });
 
-  test('TextToken has no children after compilation', () => {
-    const textToken = new TextToken();
+  test('MDTextToken has no children after compilation', () => {
+    const textToken = new MDTextToken();
     textToken.compile('example text', 0, 10);
     expect(textToken.getChildren()).toStrictEqual([]);
   });
 
-  test('TextToken extracts source correctly', () => {
-    const textToken = new TextToken();
+  test('MDTextToken extracts source correctly', () => {
+    const textToken = new MDTextToken();
     textToken.compile('example text', 0, 7);
     expect(textToken.getTokenSource()).toBe('example');
   });
 
-  test('TextToken validates after compilation', () => {
-    const textToken = new TextToken();
+  test('MDTextToken validates after compilation', () => {
+    const textToken = new MDTextToken();
     textToken.compile('example text', 0, 7);
     expect(textToken.isValid()).toBe(true);
   });
 
-  test('TextToken allows whitespace at end', () => {
-    const textToken = new TextToken();
+  test('MDTextToken allows whitespace at end', () => {
+    const textToken = new MDTextToken();
     const rawSource = 'example text  ';
     textToken.compile(rawSource, 0, rawSource.length);
     expect(textToken.getTokenSource()).toStrictEqual('example text  ');
@@ -46,15 +46,15 @@ describe('TextToken Tests', () => {
     ['*a', '*'],
     ['**a', '**'],
     ['line1\nline2', 'line1']
-  ])('TextToken compiles "%s" to "%s"', (rawSource, expected) => {
-    const textToken = new TextToken();
+  ])('MDTextToken compiles "%s" to "%s"', (rawSource, expected) => {
+    const textToken = new MDTextToken();
     textToken.compile(rawSource, 0, rawSource.length);
     expect(textToken.isValid()).toBe(true);
     expect(textToken.getTokenSource()).toBe(expected);
   });
 
-  test('TextToken debug output matches expected structure', () => {
-    const textToken = new TextToken();
+  test('MDTextToken debug output matches expected structure', () => {
+    const textToken = new MDTextToken();
     textToken.compile('the *b* quick brown 1. fox', 0, 4);
     expect(textToken.getAST()).toBe(
       '{"startCursorPosition":0,"endCursorPosition":4,"valid":true,"name":"text","source":"the ","children":[]}'
@@ -67,24 +67,24 @@ describe('TextToken Tests', () => {
     ['This is a #header', 'his is a '],
     ['This is a `Some code`', 'his is a ']
   ])(
-    'TextToken starting at position 1 for "%s" compiles to "%s"',
+    'MDTextToken starting at position 1 for "%s" compiles to "%s"',
     (rawSource, expected) => {
-      const textToken = new TextToken();
+      const textToken = new MDTextToken();
       textToken.compile(rawSource, 1, rawSource.length);
       expect(textToken.isValid()).toBe(true);
       expect(textToken.getTokenSource()).toBe(expected);
     }
   );
 
-  test('TextToken handles invalid start and end range', () => {
-    const textToken = new TextToken();
+  test('MDTextToken handles invalid start and end range', () => {
+    const textToken = new MDTextToken();
     textToken.compile('example text', 10, 5);
     expect(textToken.isValid()).toBe(false);
     expect(textToken.getTokenSource()).toBe('');
   });
 
-  test('TextToken does not accept empty string', () => {
-    const textToken = new TextToken();
+  test('MDTextToken does not accept empty string', () => {
+    const textToken = new MDTextToken();
     textToken.compile('', 0, 0);
     expect(textToken.isValid()).toBe(false);
     expect(textToken.getTokenSource()).toBe('');
@@ -95,22 +95,22 @@ describe('TextToken Tests', () => {
     ['``ss``', '``'],
     ['#header', '#']
   ])(
-    'TextToken handles termination %s characters at the start',
+    'MDTextToken handles termination %s characters at the start',
     (rawSource, expected) => {
-      const textToken = new TextToken();
+      const textToken = new MDTextToken();
       textToken.compile(rawSource, 0, rawSource.length);
       expect(textToken.getTokenSource()).toBe(expected);
     }
   );
 
-  test('TextToken stops at termination character mid-source', () => {
-    const textToken = new TextToken();
+  test('MDTextToken stops at termination character mid-source', () => {
+    const textToken = new MDTextToken();
     textToken.compile('example #header text', 0, 18);
     expect(textToken.getTokenSource()).toBe('example ');
   });
 
-  test('TextToken handles null or undefined input', () => {
-    const textToken = new TextToken();
+  test('MDTextToken handles null or undefined input', () => {
+    const textToken = new MDTextToken();
     textToken.compile(null as unknown as string, 0, 5);
     expect(textToken.isValid()).toBe(false);
     expect(textToken.getTokenSource()).toBe('');
@@ -126,9 +126,9 @@ describe('TextToken Tests', () => {
     [2, 1, false, 'end is less than start'],
     [2, 2, false, 'its not ok to have the two the same']
   ])(
-    'TextToken start %d and end %s is considered valid === %s, because %s',
+    'MDTextToken start %d and end %s is considered valid === %s, because %s',
     (start, end, valid) => {
-      const textToken = new TextToken();
+      const textToken = new MDTextToken();
       textToken.compile('test', start, end);
       expect(textToken.isValid()).toBe(valid);
     }

@@ -1,9 +1,9 @@
 import { expect, test, describe } from 'vitest';
-import { MarkdownToken } from './markdown-token';
+import { MDRootToken } from './md-root-token';
 
-describe('MarkdownToken Tests', () => {
-  test('MarkdownToken initializes correctly', () => {
-    const markdownToken = new MarkdownToken();
+describe('MDRootToken Tests', () => {
+  test('MDRootToken initializes correctly', () => {
+    const markdownToken = new MDRootToken();
     expect(markdownToken.getChildren()).toStrictEqual([]);
     expect(markdownToken.getEndCursorPosition()).toBe(0);
     expect(markdownToken.getStartCursorPosition()).toBe(0);
@@ -13,8 +13,8 @@ describe('MarkdownToken Tests', () => {
     expect(markdownToken.getName()).toBe('root');
   });
 
-  test('MarkdownToken compiles to two paragraphs', () => {
-    const markdownToken = new MarkdownToken();
+  test('MDRootToken compiles to two paragraphs', () => {
+    const markdownToken = new MDRootToken();
     const rawSource = 'paragraph1\nhello\n\nparagraph2';
     markdownToken.compile(rawSource, 0, rawSource.length);
     const children = markdownToken.getChildren();

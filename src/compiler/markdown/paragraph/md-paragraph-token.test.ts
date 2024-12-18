@@ -1,9 +1,9 @@
 import { expect, test, describe } from 'vitest';
-import { ParagraphToken } from './paragraph-token';
+import { MDParagraphToken } from './md-paragraph-token';
 
-describe('ParagraphToken Tests', () => {
-  test('ParagraphToken initializes correctly', () => {
-    const paragraphToken = new ParagraphToken();
+describe('MDParagraphToken Tests', () => {
+  test('MDParagraphToken initializes correctly', () => {
+    const paragraphToken = new MDParagraphToken();
     expect(paragraphToken.getChildren()).toStrictEqual([]);
     expect(paragraphToken.getEndCursorPosition()).toBe(0);
     expect(paragraphToken.getStartCursorPosition()).toBe(0);
@@ -18,8 +18,8 @@ describe('ParagraphToken Tests', () => {
     expect(paragraphToken.getName()).toBe('paragraph');
   });
 
-  test('ParagraphToken has a text child after compilation', () => {
-    const paragraphToken = new ParagraphToken();
+  test('MDParagraphToken has a text child after compilation', () => {
+    const paragraphToken = new MDParagraphToken();
     paragraphToken.compile('example text', 0, 12);
     expect(paragraphToken.getChildren().length).toBe(1);
     expect(paragraphToken.isValid).toBeTruthy();
@@ -28,21 +28,21 @@ describe('ParagraphToken Tests', () => {
     );
   });
 
-  test('ParagraphToken extracts source correctly', () => {
-    const paragraphToken = new ParagraphToken();
+  test('MDParagraphToken extracts source correctly', () => {
+    const paragraphToken = new MDParagraphToken();
     paragraphToken.compile('example text', 0, 12);
     expect(paragraphToken.getTokenSource()).toStrictEqual('example text');
   });
 
-  test('ParagraphToken end on a double newline', () => {
-    const paragraphToken = new ParagraphToken();
+  test('MDParagraphToken end on a double newline', () => {
+    const paragraphToken = new MDParagraphToken();
     const rawSource = 'Paragraph 1\n\nNext Paragraph';
     paragraphToken.compile(rawSource, 0, rawSource.length);
     expect(paragraphToken.getTokenSource()).toStrictEqual('Paragraph 1');
   });
 
-  test('ParagraphToken can have several texts in it', () => {
-    const paragraphToken = new ParagraphToken();
+  test('MDParagraphToken can have several texts in it', () => {
+    const paragraphToken = new MDParagraphToken();
     const rawSource = 'text 1\ntext 2\ntext 3';
     paragraphToken.compile(rawSource, 0, rawSource.length);
     const children = paragraphToken.getChildren();
@@ -52,8 +52,8 @@ describe('ParagraphToken Tests', () => {
     );
   });
 
-  test('ParagraphToken can have several texts delimited by soft breaks', () => {
-    const paragraphToken = new ParagraphToken();
+  test('MDParagraphToken can have several texts delimited by soft breaks', () => {
+    const paragraphToken = new MDParagraphToken();
     const rawSource = 'text 1  \ntext 2\ntext 3';
     paragraphToken.compile(rawSource, 0, rawSource.length);
     const children = paragraphToken.getChildren();
@@ -64,8 +64,8 @@ describe('ParagraphToken Tests', () => {
     expect(children[3].getName()).toStrictEqual('text');
   });
 
-  test('ParagraphToken can have several bold and italic with in it', () => {
-    const paragraphToken = new ParagraphToken();
+  test('MDParagraphToken can have several bold and italic with in it', () => {
+    const paragraphToken = new MDParagraphToken();
     const rawSource = '*text* 1  \ntext **2**\ntext 3';
     paragraphToken.compile(rawSource, 0, rawSource.length);
     const children = paragraphToken.getChildren();
@@ -78,8 +78,8 @@ describe('ParagraphToken Tests', () => {
     expect(children[5].getName()).toStrictEqual('text');
   });
 
-  test('Handles invalid range (start > end)', () => {
-    const paragraphToken = new ParagraphToken();
+  test('MDParagraphToken handles invalid range (start > end)', () => {
+    const paragraphToken = new MDParagraphToken();
     const source = 'This is invalid.';
     paragraphToken.compile(source, 10, 5);
 
