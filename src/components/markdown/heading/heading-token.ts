@@ -67,10 +67,14 @@ export class HeadingToken implements Token {
   }
 
   private isHeadingIndicator(source: string, start: PositionInSource): boolean {
-    return (
+    const hasIndicator =
       source.substring(start, start + HeadingIndicator.length) ===
-      HeadingIndicator
-    );
+      HeadingIndicator;
+
+    // The heading should start at the beginning of the source or start on a new line
+    const isAtStart = start === 0;
+    const isStartingOnANewLine = source[start - 1] === NewLine;
+    return hasIndicator && (isAtStart || isStartingOnANewLine);
   }
 
   private areInvalidArgs(
