@@ -60,6 +60,20 @@ describe('HeadingToken Validation', () => {
     expect(headingToken.getEndCursorPosition()).toBe(11); // End before newline
   });
 
+  test.each([
+    [' # Heading', 1, 10, false],
+    ['# Heading', 0, 10, true],
+    ['some text\n# Heading', 10, 19, true]
+  ])(
+    'Headings are only valid at the start text or at the start of a new line',
+    (src, start, end, valid) => {
+      const headingToken = new HeadingToken();
+      headingToken.compile(src, start, end);
+
+      expect(headingToken.isValid()).toBe(valid);
+    }
+  );
+
   test('should handle tokens with invalid ranges', () => {
     const source = '*i*';
     const headingToken = new HeadingToken();
