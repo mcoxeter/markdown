@@ -8,7 +8,7 @@ describe('HTMLBoldToken Initialization', () => {
     expect(boldToken.getEndCursorPosition()).toBe(0);
     expect(boldToken.getStartCursorPosition()).toBe(0);
     expect(boldToken.isValid()).toBeFalsy();
-    expect(boldToken.getProcessingOrder()).toStrictEqual(['text', 'italic']);
+    expect(boldToken.getProcessingOrder()).toStrictEqual(['italic', 'text']);
     expect(boldToken.getTokenSource()).toBe('');
     expect(boldToken.getName()).toBe('bold');
   });

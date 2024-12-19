@@ -1,6 +1,8 @@
 import { Token, TokenType } from '../token';
 import { HTMLBoldToken } from './bold/html-bold-token';
 import { HTMLItalicToken } from './italic/html-italic-token';
+import { HTMLParagraphToken } from './paragraph/html-paragraph-token';
+import { HTMLSoftBreakToken } from './soft-break/html-soft-break-token';
 import { HTMLTextToken } from './text/html-text-token';
 
 /**
@@ -14,10 +16,14 @@ export function createHTMLTokenStack(tokenTypes: TokenType[]): Token[] {
   const tokenFactory = new Map<TokenType, () => Token>([
     ['bold', () => new HTMLBoldToken()],
     ['italic', () => new HTMLItalicToken()],
-    ['text', () => new HTMLTextToken()]
+    ['text', () => new HTMLTextToken()],
+    ['soft-break', () => new HTMLSoftBreakToken()],
+    ['paragraph', () => new HTMLParagraphToken()]
   ]);
 
-  return tokenTypes.reverse().map((tokenType) => {
+  const tokenTypesReversed = [...tokenTypes].reverse();
+
+  return tokenTypesReversed.map((tokenType) => {
     const createToken = tokenFactory.get(tokenType);
     if (!createToken) {
       throw new Error(`Unsupported token type: ${tokenType}`);

@@ -1,16 +1,8 @@
-import { EmptyLine, NewLine } from '../constants';
+import { ParagraphStartIndicator, ParagraphEndIndicator } from '../constants';
 import { PositionInSource, Token, TokenType } from '../../token';
-import { createMDTokenStack } from '../token-factory';
+import { createHTMLTokenStack } from '../token-factory';
 
-/**
- *
- *
- * Example of a paragraph in markdown (paragraphs are seperated by one or more blank lines):
- * a paragraph
- *
- * a second paragraph
- */
-export class MDParagraphToken implements Token {
+export class HTMLParagraphToken implements Token {
   private startCursorPosition: number = 0;
   private endCursorPosition: number = 0;
   private valid: boolean = false;
@@ -20,6 +12,7 @@ export class MDParagraphToken implements Token {
     'bold',
     'italic',
     'soft-break',
+    'paragraph',
     'text'
   ];
 
@@ -56,6 +49,26 @@ export class MDParagraphToken implements Token {
     return JSON.stringify(this);
   }
 
+  private isParagraphStartIndicator(
+    source: string,
+    pos: PositionInSource
+  ): boolean {
+    return (
+      source.substring(pos, pos + ParagraphStartIndicator.length) ===
+      ParagraphStartIndicator
+    );
+  }
+
+  private isParagraphEndIndicator(
+    source: string,
+    pos: PositionInSource
+  ): boolean {
+    return (
+      source.substring(pos, pos + ParagraphEndIndicator.length) ===
+      ParagraphEndIndicator
+    );
+  }
+
   private areInvalidArgs(
     source: string,
     start: PositionInSource,
@@ -64,62 +77,42 @@ export class MDParagraphToken implements Token {
     return typeof source !== 'string' || start < 0 || end < start;
   }
 
-  private isEndOfParagraph(source: string): boolean {
-    return (
-      source.substring(this.endCursorPosition, this.endCursorPosition + 2) ===
-      EmptyLine
-    );
-  }
-
-  private hasReachedSourceEnd(end: PositionInSource): boolean {
-    return this.endCursorPosition >= end;
-  }
-
   compile(
     source: string,
     start: PositionInSource,
     end: PositionInSource
   ): void {
-    if (this.areInvalidArgs(source, start, end)) {
+    if (
+      this.areInvalidArgs(source, start, end) ||
+      !this.isParagraphStartIndicator(source, start)
+    ) {
       this.valid = false;
       return;
     }
+
     this.startCursorPosition = start;
-    this.endCursorPosition = this.startCursorPosition;
-    this.valid = true;
+    this.endCursorPosition = start + ParagraphStartIndicator.length;
 
-    let tokens = createMDTokenStack(this.getProcessingOrder());
+    let tokens = createHTMLTokenStack(this.processingOrder);
 
-    while (tokens.length > 0) {
+    while (this.endCursorPosition < end) {
       const token = tokens.pop();
       token?.compile(source, this.endCursorPosition, end);
       if (token?.isValid()) {
         this.children.push(token);
-        tokens = createMDTokenStack(this.getProcessingOrder());
+        tokens = createHTMLTokenStack(this.processingOrder);
         this.endCursorPosition = token.getEndCursorPosition();
 
-        // Exit condition 1: End of paragraph (empty line).
-        if (this.isEndOfParagraph(source)) {
-          this.source = source.substring(start, this.endCursorPosition);
-          this.endCursorPosition += 2; // Move past the empty line.
-          return;
-        }
-
-        // Exit condition 2: Reached the end of the source.
-        if (this.hasReachedSourceEnd(end)) {
+        // Is End condition matched.
+        if (this.isParagraphEndIndicator(source, this.endCursorPosition)) {
+          this.endCursorPosition += ParagraphEndIndicator.length;
+          this.valid = true;
           this.source = source.substring(start, this.endCursorPosition);
           return;
-        }
-
-        if (
-          source.substring(
-            this.endCursorPosition,
-            this.endCursorPosition + 1
-          ) === NewLine
-        ) {
-          this.endCursorPosition++; // Move past NewLine.
         }
       }
     }
+    // If we exit the loop, the token is invalid.
+    this.valid = false;
   }
 }

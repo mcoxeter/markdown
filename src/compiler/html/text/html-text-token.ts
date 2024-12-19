@@ -1,4 +1,4 @@
-import { ElementStartIndicator, NewLine } from '../constants';
+import { ElementStartIndicator } from '../constants';
 import { PositionInSource, Token, TokenType } from '../../token';
 
 export class HTMLTextToken implements Token {
@@ -88,8 +88,7 @@ export class HTMLTextToken implements Token {
     // Handle normal text tokens, stopping at termination characters or newlines.
     while (
       this.endCursorPosition < end &&
-      !this.isTerminationChar(source[this.endCursorPosition]) &&
-      source[this.endCursorPosition] !== NewLine
+      !this.isTerminationChar(source[this.endCursorPosition])
     ) {
       this.endCursorPosition++;
     }

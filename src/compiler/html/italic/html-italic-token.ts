@@ -8,7 +8,7 @@ export class HTMLItalicToken implements Token {
   private valid: boolean = false;
   private name: TokenType = 'italic';
   private source: string = '';
-  private processingOrder: TokenType[] = ['text', 'bold'];
+  private processingOrder: TokenType[] = ['bold', 'text'];
   private children: Token[] = [];
   getProcessingOrder(): TokenType[] {
     return this.processingOrder;

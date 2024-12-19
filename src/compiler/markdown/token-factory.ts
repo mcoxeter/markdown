@@ -25,7 +25,8 @@ export function createMDTokenStack(tokenTypes: TokenType[]): Token[] {
     ['soft-break', () => new MDSoftBreakToken()]
   ]);
 
-  return tokenTypes.reverse().map((tokenType) => {
+  const tokenTypesReversed = [...tokenTypes].reverse();
+  return tokenTypesReversed.map((tokenType) => {
     const createToken = tokenFactory.get(tokenType);
     if (!createToken) {
       throw new Error(`Unsupported token type: ${tokenType}`);
