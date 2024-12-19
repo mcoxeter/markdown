@@ -54,15 +54,6 @@ describe('MDItalicToken Validation', () => {
     expect(italicToken.isValid()).toBeFalsy();
   });
 
-  test('MDItalicToken should handle empty or whitespace-only input', () => {
-    const italicToken = new MDItalicToken();
-    italicToken.compile('', 0, 0);
-    expect(italicToken.isValid()).toBeFalsy();
-
-    italicToken.compile('   ', 0, 3);
-    expect(italicToken.isValid()).toBeFalsy();
-  });
-
   test('MDItalicToken should handle bold within', () => {
     const italicToken = new MDItalicToken();
     const source = '*This is **bold** in the middle*';

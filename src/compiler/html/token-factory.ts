@@ -1,5 +1,7 @@
 import { Token, TokenType } from '../token';
 import { HTMLBoldToken } from './bold/html-bold-token';
+import { HTMLItalicToken } from './italic/html-italic-token';
+import { HTMLTextToken } from './text/html-text-token';
 
 /**
  * Creates a stack of tokens based on the provided token types.
@@ -10,7 +12,9 @@ import { HTMLBoldToken } from './bold/html-bold-token';
  */
 export function createHTMLTokenStack(tokenTypes: TokenType[]): Token[] {
   const tokenFactory = new Map<TokenType, () => Token>([
-    ['bold', () => new HTMLBoldToken()]
+    ['bold', () => new HTMLBoldToken()],
+    ['italic', () => new HTMLItalicToken()],
+    ['text', () => new HTMLTextToken()]
   ]);
 
   return tokenTypes.reverse().map((tokenType) => {
