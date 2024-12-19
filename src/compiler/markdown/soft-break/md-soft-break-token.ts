@@ -20,12 +20,13 @@ export class MDSoftBreakToken implements Token {
   private name: TokenType = 'soft-break';
   private source: string = '';
 
+  private processingOrder: TokenType[] = [];
   private children: Token[] = [];
   /**
    * Specifies the order in which this token processes child tokens.
    */
   getProcessingOrder(): TokenType[] {
-    return [];
+    return this.processingOrder;
   }
 
   getChildren(): Token[] {

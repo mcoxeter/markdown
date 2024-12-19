@@ -44,7 +44,7 @@ describe('HTMLTextToken Tests', () => {
     ['This is a <code>Some code</code>', 'This is a '],
     ['<a', '<a'],
     ['>a', '>a'],
-    ['line1\nline2', 'line1']
+    ['line1\nline2', 'line1\nline2']
   ])('HTMLTextToken compiles "%s" to "%s"', (rawSource, expected) => {
     const textToken = new HTMLTextToken();
     textToken.compile(rawSource, 0, rawSource.length);

@@ -8,7 +8,7 @@ describe('MDItalicToken Initialization', () => {
     expect(italicToken.getEndCursorPosition()).toBe(0);
     expect(italicToken.getStartCursorPosition()).toBe(0);
     expect(italicToken.isValid()).toBeFalsy();
-    expect(italicToken.getProcessingOrder()).toStrictEqual(['text', 'bold']);
+    expect(italicToken.getProcessingOrder()).toStrictEqual(['bold', 'text']);
     expect(italicToken.getTokenSource()).toBe('');
     expect(italicToken.getName()).toBe('italic');
   });

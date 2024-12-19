@@ -26,7 +26,7 @@ export class MDBoldToken implements Token {
   private valid: boolean = false;
   private name: TokenType = 'bold';
   private source: string = '';
-  private processingOrder: TokenType[] = ['text', 'italic'];
+  private processingOrder: TokenType[] = ['italic', 'text'];
   private children: Token[] = [];
   getProcessingOrder(): TokenType[] {
     return this.processingOrder;
