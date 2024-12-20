@@ -1,11 +1,15 @@
 import React from 'react';
 import styles from './html-input.module.scss';
-import { MarkdownContext } from '../markdown-context';
 
 const HTMLInput: React.FC = () => {
-  const context = React.useContext(MarkdownContext);
-  if (context.currentPanel !== 'html') return null;
-  return <textarea className={styles.htmlinput} />;
+  const [html, setHtml] = React.useState<string>('');
+  return (
+    <textarea
+      className={styles.htmlinput}
+      value={html}
+      onChange={(e) => setHtml(e.target.value)}
+    />
+  );
 };
 
 export default HTMLInput;

@@ -8,7 +8,10 @@ describe('MDRootToken Tests', () => {
     expect(markdownToken.getEndCursorPosition()).toBe(0);
     expect(markdownToken.getStartCursorPosition()).toBe(0);
     expect(markdownToken.isValid()).toBe(false);
-    expect(markdownToken.getProcessingOrder()).toStrictEqual(['paragraph']);
+    expect(markdownToken.getProcessingOrder()).toStrictEqual([
+      'heading',
+      'paragraph'
+    ]);
     expect(markdownToken.getTokenSource()).toBe('');
     expect(markdownToken.getName()).toBe('root');
   });

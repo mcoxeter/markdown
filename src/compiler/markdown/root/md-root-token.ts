@@ -19,7 +19,7 @@ export class MDRootToken implements Token {
   private valid: boolean = false;
   private name: TokenType = 'root';
   private source: string = '';
-  private processingOrder: TokenType[] = ['paragraph'];
+  private processingOrder: TokenType[] = ['heading', 'paragraph'];
   private children: Token[] = [];
   getProcessingOrder(): TokenType[] {
     return this.processingOrder;
