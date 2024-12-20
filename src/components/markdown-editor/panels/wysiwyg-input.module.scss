@@ -1,0 +1,5 @@
+@use 'input';
+
+.wysiwyginput {
+  @include input.dimensions;
+}

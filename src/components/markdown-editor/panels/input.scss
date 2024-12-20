@@ -1,4 +1,4 @@
-.textarea {
+@mixin dimensions {
   width: calc(100% - 10px);
   height: 100%;
   min-height: 3.8rem;

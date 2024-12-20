@@ -1,0 +1,5 @@
+@use 'input';
+
+.astinput {
+  @include input.dimensions;
+}

@@ -7,6 +7,7 @@ export type ButtonProps = {
   italic?: boolean;
   bold?: boolean;
   active?: boolean;
+  onClick?: () => void;
 };
 
 const Button: React.FC<ButtonProps> = ({
@@ -14,12 +15,14 @@ const Button: React.FC<ButtonProps> = ({
   label,
   italic = false,
   bold = false,
-  active = false
+  active = false,
+  onClick
 }) => {
   return (
     <button
       className={[styles.button, active ? styles.active : ''].join(' ')}
       id={id}
+      onClick={onClick}
     >
       <Italic italic={italic}>
         <Bold bold={bold}>{label}</Bold>
