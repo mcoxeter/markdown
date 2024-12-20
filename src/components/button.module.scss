@@ -8,10 +8,10 @@
   transition: background-color 0.3s;
   min-width: 32px;
   &:hover {
-    background-color: #e1e1e1;
+    background-color: #b7d0fd;
   }
   &:active,
   &.active {
-    background-color: #d1d1d1;
+    background-color: #6ca0ff;
   }
 }

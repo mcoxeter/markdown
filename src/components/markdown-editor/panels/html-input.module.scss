@@ -1,0 +1,5 @@
+@use 'input';
+
+.htmlinput {
+  @include input.dimensions;
+}
