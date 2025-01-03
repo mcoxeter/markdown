@@ -1,4 +1,4 @@
-import { SoftBreak } from "../constants";
+import { LineBreak, SoftBreak } from "../constants";
 import { IAST, PositionInSource, Token, TokenType } from "../../token";
 import { MDgetAST, MDfromAST } from "../token-factory";
 
@@ -14,11 +14,11 @@ import { MDgetAST, MDfromAST } from "../token-factory";
  *
  * Use this class in a markdown parser to handle soft breaks, ensuring they are correctly interpreted as line breaks while preserving paragraph continuity.
  */
-export class MDSoftBreakToken implements Token {
+export class MDLineBreakToken implements Token {
   startCursorPosition: number = 0;
   endCursorPosition: number = 0;
   valid: boolean = false;
-  readonly name: TokenType = "soft-break";
+  readonly name: TokenType = "line-break";
   source: string = "";
 
   readonly processingOrder: TokenType[] = [];
@@ -59,12 +59,12 @@ export class MDSoftBreakToken implements Token {
     this.endCursorPosition = this.startCursorPosition;
     this.valid =
       end - start > 1 &&
-      source.substring(start, start + SoftBreak.length) === SoftBreak;
+      source.substring(start, start + LineBreak.length) === LineBreak;
 
     this.endCursorPosition = this.valid ? start + 2 : start;
     this.source = source.substring(start, this.endCursorPosition);
   }
   decompile(): string {
-    return SoftBreak;
+    return `  `;
   }
 }

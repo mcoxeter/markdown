@@ -1,38 +1,22 @@
-import { ElementStartIndicator } from '../constants';
-import { PositionInSource, Token, TokenType } from '../../token';
+import { ElementStartIndicator } from "../constants";
+import { IAST, PositionInSource, Token, TokenType } from "../../token";
+import { HTMLfromAST, HTMLgetAST } from "../token-factory";
 
 export class HTMLTextToken implements Token {
-  private startCursorPosition: number = 0;
-  private endCursorPosition: number = 0;
-  private valid: boolean = false;
-  private name: TokenType = 'text';
-  private source: string = '';
+  startCursorPosition: number = 0;
+  endCursorPosition: number = 0;
+  valid: boolean = false;
+  source: string = "";
+  readonly children: Token[] = [];
+  readonly name: TokenType = "text";
+  readonly processingOrder: TokenType[] = [];
 
-  private children: Token[] = [];
-  getProcessingOrder(): TokenType[] {
-    return [];
-  }
-  getChildren(): Token[] {
-    return this.children;
-  }
-  getStartCursorPosition(): PositionInSource {
-    return this.startCursorPosition;
-  }
-  getEndCursorPosition(): PositionInSource {
-    return this.endCursorPosition;
-  }
-  isValid(): boolean {
-    return this.valid;
-  }
-  getName(): TokenType {
-    return this.name;
-  }
-  getTokenSource(): string {
-    return this.source;
+  getAST(): IAST {
+    return HTMLgetAST(this);
   }
 
-  getAST(): string {
-    return JSON.stringify(this);
+  fromAST(ast: IAST): Token {
+    return HTMLfromAST(ast);
   }
 
   /**
@@ -49,9 +33,9 @@ export class HTMLTextToken implements Token {
     end: PositionInSource
   ): boolean {
     return (
-      typeof source !== 'string' ||
-      typeof start !== 'number' ||
-      typeof end !== 'number' ||
+      typeof source !== "string" ||
+      typeof start !== "number" ||
+      typeof end !== "number" ||
       start < 0 ||
       end < start
     );
@@ -96,5 +80,9 @@ export class HTMLTextToken implements Token {
     this.source = source.substring(start, this.endCursorPosition);
 
     this.valid = this.source.length > 0;
+  }
+
+  decompile(): string {
+    return this.source;
   }
 }

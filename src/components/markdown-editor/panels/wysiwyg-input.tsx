@@ -1,11 +1,15 @@
-import React from 'react';
-import styles from './wysiwyg-input.module.scss';
-import { MarkdownContext } from '../markdown-context';
+import React from "react";
+import styles from "./wysiwyg-input.module.scss";
 
 const WYSIWYGInput: React.FC = () => {
-  const context = React.useContext(MarkdownContext);
-  if (context.currentPanel !== 'wysiwyg') return null;
-  return <textarea className={styles.wysiwyginput} />;
+  const [value, setValue] = React.useState<string>("");
+  return (
+    <textarea
+      className={styles.wysiwyginput}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+    />
+  );
 };
 
 export default WYSIWYGInput;

@@ -1,6 +1,6 @@
-import { HeadingIndicator, NewLine } from '../constants';
-import { PositionInSource, Token, TokenType } from '../../token';
-import { createMDTokenStack } from '../token-factory';
+import { HeadingIndicator, NewLine } from "../constants";
+import { IAST, PositionInSource, Token, TokenType } from "../../token";
+import { createMDTokenStack, MDfromAST, MDgetAST } from "../token-factory";
 
 /**
  * The MDHeadingToken class represents a token for parsing and compiling markdown headings.
@@ -27,39 +27,22 @@ import { createMDTokenStack } from '../token-factory';
  * # Heading ***level** 1*
  */
 export class MDHeadingToken implements Token {
-  private startCursorPosition: number = 0;
-  private endCursorPosition: number = 0;
-  private valid: boolean = false;
-  private name: TokenType = 'heading';
-  private source: string = '';
-  private processingOrder: TokenType[] = ['text', 'bold', 'italic'];
-  private children: Token[] = [];
+  startCursorPosition: number = 0;
+  endCursorPosition: number = 0;
+  valid: boolean = false;
+  readonly name: TokenType = "heading";
+  source: string = "";
+  readonly processingOrder: TokenType[] = ["bold", "italic", "text"];
+  readonly children: Token[] = [];
 
   private headingLevel = 0;
-  getProcessingOrder(): TokenType[] {
-    return this.processingOrder;
-  }
-  getChildren(): Token[] {
-    return this.children;
-  }
-  getStartCursorPosition(): PositionInSource {
-    return this.startCursorPosition;
-  }
-  getEndCursorPosition(): PositionInSource {
-    return this.endCursorPosition;
-  }
-  isValid(): boolean {
-    return this.valid;
-  }
-  getName(): TokenType {
-    return this.name;
-  }
-  getTokenSource(): string {
-    return this.source;
+
+  getAST(): IAST {
+    return MDgetAST(this);
   }
 
-  getAST(): string {
-    return JSON.stringify(this);
+  fromAST(ast: IAST): Token {
+    return MDfromAST(ast);
   }
 
   getHeadingLevel(): number {
@@ -82,7 +65,7 @@ export class MDHeadingToken implements Token {
     start: PositionInSource,
     end: PositionInSource
   ): boolean {
-    return typeof source !== 'string' || start < 0 || end < start;
+    return typeof source !== "string" || start < 0 || end < start;
   }
 
   private countHeadingIndicators(
@@ -121,7 +104,7 @@ export class MDHeadingToken implements Token {
     this.endCursorPosition = start + level;
 
     // A valid heading must be followed by a space.
-    if (source[this.endCursorPosition] !== ' ') {
+    if (source[this.endCursorPosition] !== " ") {
       this.resetState();
       return;
     }
@@ -132,10 +115,19 @@ export class MDHeadingToken implements Token {
     while (this.endCursorPosition < end) {
       const token = tokens.pop();
       token?.compile(source, this.endCursorPosition, end);
-      if (token?.isValid()) {
+      if (token?.valid) {
         this.children.push(token);
         tokens = createMDTokenStack(this.processingOrder);
-        this.endCursorPosition = token.getEndCursorPosition();
+        this.endCursorPosition = token.endCursorPosition;
+
+        if (source[this.endCursorPosition] === NewLine) {
+          while (source[this.endCursorPosition] === NewLine) {
+            this.endCursorPosition++;
+          }
+          this.valid = true;
+          this.source = source.substring(start, this.endCursorPosition);
+          return;
+        }
 
         // Check for the end of the heading.
         if (
@@ -148,6 +140,13 @@ export class MDHeadingToken implements Token {
         }
       }
     }
+  }
+
+  decompile(): string {
+    const header = Array(this.headingLevel).fill("#").join("");
+    return (
+      header + " " + this.children.map((child) => child.decompile()).join("")
+    );
   }
   // Reset the state for invalid headings
   private resetState(): void {

@@ -1,52 +1,32 @@
-import { ParagraphStartIndicator, ParagraphEndIndicator } from '../constants';
-import { PositionInSource, Token, TokenType } from '../../token';
-import { createHTMLTokenStack } from '../token-factory';
+import { ParagraphStartIndicator, ParagraphEndIndicator } from "../constants";
+import { IAST, PositionInSource, Token, TokenType } from "../../token";
+import {
+  createHTMLTokenStack,
+  HTMLfromAST,
+  HTMLgetAST,
+} from "../token-factory";
 
 export class HTMLParagraphToken implements Token {
-  private startCursorPosition: number = 0;
-  private endCursorPosition: number = 0;
-  private valid: boolean = false;
-  private name: TokenType = 'paragraph';
-  private source: string = '';
-  private processingOrder: TokenType[] = [
-    'bold',
-    'italic',
-    'soft-break',
-    'paragraph',
-    'text'
+  startCursorPosition: number = 0;
+  endCursorPosition: number = 0;
+  valid: boolean = false;
+  source: string = "";
+  readonly children: Token[] = [];
+  readonly name: TokenType = "paragraph";
+  readonly processingOrder: TokenType[] = [
+    "bold",
+    "italic",
+    "soft-break",
+    "paragraph",
+    "text",
   ];
 
-  private children: Token[] = [];
-  /**
-   * Specifies the order in which this token processes child tokens.
-   */
-  getProcessingOrder(): TokenType[] {
-    return this.processingOrder;
+  getAST(): IAST {
+    return HTMLgetAST(this);
   }
 
-  getChildren(): Token[] {
-    return this.children;
-  }
-
-  getStartCursorPosition(): PositionInSource {
-    return this.startCursorPosition;
-  }
-
-  getEndCursorPosition(): PositionInSource {
-    return this.endCursorPosition;
-  }
-  isValid(): boolean {
-    return this.valid;
-  }
-  getName(): TokenType {
-    return this.name;
-  }
-  getTokenSource(): string {
-    return this.source;
-  }
-
-  getAST(): string {
-    return JSON.stringify(this);
+  fromAST(ast: IAST): Token {
+    return HTMLfromAST(ast);
   }
 
   private isParagraphStartIndicator(
@@ -74,7 +54,7 @@ export class HTMLParagraphToken implements Token {
     start: PositionInSource,
     end: PositionInSource
   ): boolean {
-    return typeof source !== 'string' || start < 0 || end < start;
+    return typeof source !== "string" || start < 0 || end < start;
   }
 
   compile(
@@ -98,10 +78,10 @@ export class HTMLParagraphToken implements Token {
     while (this.endCursorPosition < end) {
       const token = tokens.pop();
       token?.compile(source, this.endCursorPosition, end);
-      if (token?.isValid()) {
+      if (token?.valid) {
         this.children.push(token);
         tokens = createHTMLTokenStack(this.processingOrder);
-        this.endCursorPosition = token.getEndCursorPosition();
+        this.endCursorPosition = token.endCursorPosition;
 
         // Is End condition matched.
         if (this.isParagraphEndIndicator(source, this.endCursorPosition)) {
@@ -114,5 +94,10 @@ export class HTMLParagraphToken implements Token {
     }
     // If we exit the loop, the token is invalid.
     this.valid = false;
+  }
+  decompile(): string {
+    return (
+      `<p>` + this.children.map((child) => child.decompile()).join("") + `</p>`
+    );
   }
 }

@@ -1,39 +1,26 @@
-import { PositionInSource, Token, TokenType } from '../../token';
-import { BoldEndIndicator, BoldStartIndicator } from '../constants';
-import { createHTMLTokenStack } from '../token-factory';
+import { IAST, PositionInSource, Token, TokenType } from "../../token";
+import { BoldEndIndicator, BoldStartIndicator } from "../constants";
+import {
+  createHTMLTokenStack,
+  HTMLfromAST,
+  HTMLgetAST,
+} from "../token-factory";
 
 export class HTMLBoldToken implements Token {
-  private startCursorPosition: number = 0;
-  private endCursorPosition: number = 0;
-  private valid: boolean = false;
-  private name: TokenType = 'bold';
-  private source: string = '';
-  private processingOrder: TokenType[] = ['italic', 'text'];
-  private children: Token[] = [];
-  getProcessingOrder(): TokenType[] {
-    return this.processingOrder;
-  }
-  getChildren(): Token[] {
-    return this.children;
-  }
-  getStartCursorPosition(): PositionInSource {
-    return this.startCursorPosition;
-  }
-  getEndCursorPosition(): PositionInSource {
-    return this.endCursorPosition;
-  }
-  isValid(): boolean {
-    return this.valid;
-  }
-  getName(): TokenType {
-    return this.name;
-  }
-  getTokenSource(): string {
-    return this.source;
+  startCursorPosition: number = 0;
+  endCursorPosition: number = 0;
+  valid: boolean = false;
+  source: string = "";
+  readonly name: TokenType = "bold";
+  readonly children: Token[] = [];
+  readonly processingOrder: TokenType[] = ["italic", "text"];
+
+  getAST(): IAST {
+    return HTMLgetAST(this);
   }
 
-  getAST(): string {
-    return JSON.stringify(this);
+  fromAST(ast: IAST): Token {
+    return HTMLfromAST(ast);
   }
 
   private isBoldStartIndicator(source: string, pos: PositionInSource): boolean {
@@ -54,7 +41,7 @@ export class HTMLBoldToken implements Token {
     start: PositionInSource,
     end: PositionInSource
   ): boolean {
-    return typeof source !== 'string' || start < 0 || end < start;
+    return typeof source !== "string" || start < 0 || end < start;
   }
 
   compile(
@@ -78,10 +65,10 @@ export class HTMLBoldToken implements Token {
     while (this.endCursorPosition < end) {
       const token = tokens.pop();
       token?.compile(source, this.endCursorPosition, end);
-      if (token?.isValid()) {
+      if (token?.valid) {
         this.children.push(token);
         tokens = createHTMLTokenStack(this.processingOrder);
-        this.endCursorPosition = token.getEndCursorPosition();
+        this.endCursorPosition = token.endCursorPosition;
 
         // Is End condition matched.
         if (this.isBoldEndIndicator(source, this.endCursorPosition)) {
@@ -94,5 +81,9 @@ export class HTMLBoldToken implements Token {
     }
     // If we exit the loop, the token is invalid.
     this.valid = false;
+  }
+
+  decompile(): string {
+    return `<b>${this.children.map((child) => child.decompile()).join("")}</b>`;
   }
 }

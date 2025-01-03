@@ -1,6 +1,6 @@
-import { BoldIndicator } from '../constants';
-import { PositionInSource, Token, TokenType } from '../../token';
-import { createMDTokenStack } from '../token-factory';
+import { BoldIndicator } from "../constants";
+import { IAST, PositionInSource, Token, TokenType } from "../../token";
+import { createMDTokenStack, MDfromAST, MDgetAST } from "../token-factory";
 
 /**
  * The MDBoldToken class represents a token for parsing and compiling bold text in markdown syntax.
@@ -21,37 +21,20 @@ import { createMDTokenStack } from '../token-factory';
  * **Bold and *italic***
  */
 export class MDBoldToken implements Token {
-  private startCursorPosition: number = 0;
-  private endCursorPosition: number = 0;
-  private valid: boolean = false;
-  private name: TokenType = 'bold';
-  private source: string = '';
-  private processingOrder: TokenType[] = ['italic', 'text'];
-  private children: Token[] = [];
-  getProcessingOrder(): TokenType[] {
-    return this.processingOrder;
-  }
-  getChildren(): Token[] {
-    return this.children;
-  }
-  getStartCursorPosition(): PositionInSource {
-    return this.startCursorPosition;
-  }
-  getEndCursorPosition(): PositionInSource {
-    return this.endCursorPosition;
-  }
-  isValid(): boolean {
-    return this.valid;
-  }
-  getName(): TokenType {
-    return this.name;
-  }
-  getTokenSource(): string {
-    return this.source;
+  startCursorPosition: number = 0;
+  endCursorPosition: number = 0;
+  valid: boolean = false;
+  readonly name: TokenType = "bold";
+  source: string = "";
+  readonly processingOrder: TokenType[] = ["italic", "text"];
+  readonly children: Token[] = [];
+
+  getAST(): IAST {
+    return MDgetAST(this);
   }
 
-  getAST(): string {
-    return JSON.stringify(this);
+  fromAST(ast: IAST): Token {
+    return MDfromAST(ast);
   }
 
   private isBoldIndicator(source: string, pos: PositionInSource): boolean {
@@ -63,7 +46,7 @@ export class MDBoldToken implements Token {
     start: PositionInSource,
     end: PositionInSource
   ): boolean {
-    return typeof source !== 'string' || start < 0 || end < start;
+    return typeof source !== "string" || start < 0 || end < start;
   }
 
   compile(
@@ -87,10 +70,10 @@ export class MDBoldToken implements Token {
     while (this.endCursorPosition < end) {
       const token = tokens.pop();
       token?.compile(source, this.endCursorPosition, end);
-      if (token?.isValid()) {
+      if (token?.valid) {
         this.children.push(token);
         tokens = createMDTokenStack(this.processingOrder);
-        this.endCursorPosition = token.getEndCursorPosition();
+        this.endCursorPosition = token.endCursorPosition;
 
         // Is End condition matched.
         if (this.isBoldIndicator(source, this.endCursorPosition)) {
@@ -103,5 +86,10 @@ export class MDBoldToken implements Token {
     }
     // If we exit the loop, the token is invalid.
     this.valid = false;
+  }
+  decompile(): string {
+    return (
+      `**` + this.children.map((child) => child.decompile()).join("") + `**`
+    );
   }
 }

@@ -1,5 +1,6 @@
-import { Backtick, Hash, NewLine, Star } from '../constants';
-import { PositionInSource, Token, TokenType } from '../../token';
+import { Backtick, Hash, LineBreak, NewLine, Star } from "../constants";
+import { IAST, PositionInSource, Token, TokenType } from "../../token";
+import { MDgetAST, MDfromAST } from "../token-factory";
 
 /**
  * The MDTextToken class represents a token for parsing and compiling plain text in markdown syntax.
@@ -22,37 +23,21 @@ import { PositionInSource, Token, TokenType } from '../../token';
  * some text
  */
 export class MDTextToken implements Token {
-  private startCursorPosition: number = 0;
-  private endCursorPosition: number = 0;
-  private valid: boolean = false;
-  private name: TokenType = 'text';
-  private source: string = '';
+  startCursorPosition: number = 0;
+  endCursorPosition: number = 0;
+  valid: boolean = false;
+  readonly name: TokenType = "text";
+  source: string = "";
+  processingOrder: TokenType[] = [];
 
-  private children: Token[] = [];
-  getProcessingOrder(): TokenType[] {
-    return [];
-  }
-  getChildren(): Token[] {
-    return this.children;
-  }
-  getStartCursorPosition(): PositionInSource {
-    return this.startCursorPosition;
-  }
-  getEndCursorPosition(): PositionInSource {
-    return this.endCursorPosition;
-  }
-  isValid(): boolean {
-    return this.valid;
-  }
-  getName(): TokenType {
-    return this.name;
-  }
-  getTokenSource(): string {
-    return this.source;
+  readonly children: Token[] = [];
+
+  getAST(): IAST {
+    return MDgetAST(this);
   }
 
-  getAST(): string {
-    return JSON.stringify(this);
+  fromAST(ast: IAST): Token {
+    return MDfromAST(ast);
   }
 
   /**
@@ -69,9 +54,9 @@ export class MDTextToken implements Token {
     end: PositionInSource
   ): boolean {
     return (
-      typeof source !== 'string' ||
-      typeof start !== 'number' ||
-      typeof end !== 'number' ||
+      typeof source !== "string" ||
+      typeof start !== "number" ||
+      typeof end !== "number" ||
       start < 0 ||
       end < start
     );
@@ -123,14 +108,14 @@ export class MDTextToken implements Token {
     this.source = source.substring(start, this.endCursorPosition);
 
     // Case 3: When the token ends with a double space at the end of the line.
-    if (
-      this.source.endsWith('  ') &&
-      source.substring(this.endCursorPosition, this.endCursorPosition + 1) ===
-        '\n'
-    ) {
+    if (this.source.endsWith(LineBreak)) {
       this.source = this.source.trimEnd();
-      this.endCursorPosition -= 2;
+      this.endCursorPosition -= LineBreak.length;
     }
     this.valid = this.source.length > 0;
+  }
+
+  decompile(): string {
+    return this.source;
   }
 }

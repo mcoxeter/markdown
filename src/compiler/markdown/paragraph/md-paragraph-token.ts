@@ -1,6 +1,7 @@
-import { EmptyLine, NewLine } from '../constants';
-import { PositionInSource, Token, TokenType } from '../../token';
-import { createMDTokenStack } from '../token-factory';
+import { EmptyLine, Hash, NewLine, SoftBreak } from "../constants";
+import { IAST, PositionInSource, Token, TokenType } from "../../token";
+import { createMDTokenStack, MDfromAST, MDgetAST } from "../token-factory";
+import { MDSoftBreakToken } from "../soft-break/md-soft-break-token";
 
 /**
  *
@@ -11,49 +12,26 @@ import { createMDTokenStack } from '../token-factory';
  * a second paragraph
  */
 export class MDParagraphToken implements Token {
-  private startCursorPosition: number = 0;
-  private endCursorPosition: number = 0;
-  private valid: boolean = false;
-  private name: TokenType = 'paragraph';
-  private source: string = '';
-  private processingOrder: TokenType[] = [
-    'bold',
-    'italic',
-    'soft-break',
-    'text'
+  startCursorPosition: number = 0;
+  endCursorPosition: number = 0;
+  valid: boolean = false;
+  readonly name: TokenType = "paragraph";
+  source: string = "";
+  readonly processingOrder: TokenType[] = [
+    "bold",
+    "italic",
+    "line-break",
+    "text",
   ];
 
-  private children: Token[] = [];
-  /**
-   * Specifies the order in which this token processes child tokens.
-   */
-  getProcessingOrder(): TokenType[] {
-    return this.processingOrder;
+  children: Token[] = [];
+
+  getAST(): IAST {
+    return MDgetAST(this);
   }
 
-  getChildren(): Token[] {
-    return this.children;
-  }
-
-  getStartCursorPosition(): PositionInSource {
-    return this.startCursorPosition;
-  }
-
-  getEndCursorPosition(): PositionInSource {
-    return this.endCursorPosition;
-  }
-  isValid(): boolean {
-    return this.valid;
-  }
-  getName(): TokenType {
-    return this.name;
-  }
-  getTokenSource(): string {
-    return this.source;
-  }
-
-  getAST(): string {
-    return JSON.stringify(this);
+  fromAST(ast: IAST): Token {
+    return MDfromAST(ast);
   }
 
   private areInvalidArgs(
@@ -61,13 +39,19 @@ export class MDParagraphToken implements Token {
     start: PositionInSource,
     end: PositionInSource
   ): boolean {
-    return typeof source !== 'string' || start < 0 || end < start;
+    return typeof source !== "string" || start < 0 || end < start;
   }
 
   private isEndOfParagraph(source: string): boolean {
     return (
-      source.substring(this.endCursorPosition, this.endCursorPosition + 2) ===
-      EmptyLine
+      source.substring(
+        this.endCursorPosition,
+        this.endCursorPosition + EmptyLine.length
+      ) === EmptyLine ||
+      source.substring(
+        this.endCursorPosition,
+        this.endCursorPosition + Hash.length
+      ) === Hash
     );
   }
 
@@ -88,26 +72,29 @@ export class MDParagraphToken implements Token {
     this.endCursorPosition = this.startCursorPosition;
     this.valid = true;
 
-    let tokens = createMDTokenStack(this.getProcessingOrder());
+    let tokens = createMDTokenStack(this.processingOrder);
 
     while (tokens.length > 0) {
       const token = tokens.pop();
       token?.compile(source, this.endCursorPosition, end);
-      if (token?.isValid()) {
+      if (token?.valid) {
         this.children.push(token);
-        tokens = createMDTokenStack(this.getProcessingOrder());
-        this.endCursorPosition = token.getEndCursorPosition();
+        tokens = createMDTokenStack(this.processingOrder);
+        this.endCursorPosition = token.endCursorPosition;
 
         // Exit condition 1: End of paragraph (empty line).
         if (this.isEndOfParagraph(source)) {
           this.source = source.substring(start, this.endCursorPosition);
-          this.endCursorPosition += 2; // Move past the empty line.
+          this.endCursorPosition += EmptyLine.length; // Move past the empty line.
+          this.addSoftBreakToChildren();
+
           return;
         }
 
         // Exit condition 2: Reached the end of the source.
         if (this.hasReachedSourceEnd(end)) {
           this.source = source.substring(start, this.endCursorPosition);
+          this.addSoftBreakToChildren();
           return;
         }
 
@@ -117,9 +104,38 @@ export class MDParagraphToken implements Token {
             this.endCursorPosition + 1
           ) === NewLine
         ) {
-          this.endCursorPosition++; // Move past NewLine.
+          this.endCursorPosition++; // Consume NewLines.
+
+          if (this.isEndOfParagraph(source)) {
+            this.source = source.substring(start, this.endCursorPosition);
+            this.addSoftBreakToChildren();
+
+            return;
+          }
         }
       }
     }
+  }
+
+  decompile(): string {
+    return this.children.map((child) => child.decompile()).join("");
+  }
+
+  addSoftBreakToChildren() {
+    const newChildren = this.children.reduce<Token[]>(
+      (prevToken, currentToken) => {
+        if (
+          prevToken[prevToken.length - 1]?.name === "text" &&
+          currentToken.name === "text"
+        ) {
+          const token = new MDSoftBreakToken();
+          token.compile(SoftBreak, 0, SoftBreak.length);
+          return prevToken.concat(token, currentToken);
+        }
+        return prevToken.concat(currentToken);
+      },
+      []
+    );
+    this.children = newChildren;
   }
 }

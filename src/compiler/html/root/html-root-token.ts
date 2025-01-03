@@ -1,5 +1,9 @@
 import { IAST, PositionInSource, Token, TokenType } from "../../token";
-import { createMDTokenStack, MDfromAST, MDgetAST } from "../token-factory";
+import {
+  createHTMLTokenStack,
+  HTMLfromAST,
+  HTMLgetAST,
+} from "../token-factory";
 
 /**
  * The MDRootToken class serves as the root token in a markdown parser, representing the entirety of a markdown document.
@@ -13,21 +17,27 @@ import { createMDTokenStack, MDfromAST, MDgetAST } from "../token-factory";
  * The MarkdownToken acts as the entry point for parsing a markdown source string, ensuring all nested tokens are processed and assembled into a cohesive token tree.
  * Use this class in markdown parsers to handle and process the entire markdown content.
  */
-export class MDRootToken implements Token {
+export class HTMLRootToken implements Token {
   startCursorPosition: number = 0;
   endCursorPosition: number = 0;
   valid: boolean = false;
   readonly name: TokenType = "root";
   source: string = "";
-  readonly processingOrder: TokenType[] = ["heading", "paragraph"];
+  readonly processingOrder: TokenType[] = [
+    "heading",
+    "paragraph",
+    "bold",
+    "italic",
+    "text",
+  ];
   readonly children: Token[] = [];
 
   getAST(): IAST {
-    return MDgetAST(this);
+    return HTMLgetAST(this);
   }
 
   fromAST(ast: IAST): Token {
-    return MDfromAST(ast);
+    return HTMLfromAST(ast);
   }
 
   private areInvalidArgs(
@@ -55,14 +65,14 @@ export class MDRootToken implements Token {
     this.endCursorPosition = this.startCursorPosition;
     this.valid = true;
 
-    let tokens = createMDTokenStack(this.processingOrder);
+    let tokens = createHTMLTokenStack(this.processingOrder);
 
     while (tokens.length > 0) {
       const token = tokens.pop();
       token?.compile(source, this.endCursorPosition, end);
       if (token?.valid) {
         this.children.push(token);
-        tokens = createMDTokenStack(this.processingOrder);
+        tokens = createHTMLTokenStack(this.processingOrder);
         this.endCursorPosition = token.endCursorPosition;
 
         // Exit condition 1: Reached the end of the source.

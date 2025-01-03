@@ -1,7 +1,7 @@
-import { MDBoldToken } from '../bold/md-bold-token';
-import { ItalicIndicator } from '../constants';
-import { PositionInSource, Token, TokenType } from '../../token';
-import { createMDTokenStack } from '../token-factory';
+import { MDBoldToken } from "../bold/md-bold-token";
+import { ItalicIndicator } from "../constants";
+import { IAST, PositionInSource, Token, TokenType } from "../../token";
+import { createMDTokenStack, MDfromAST, MDgetAST } from "../token-factory";
 
 /**
  * The MDItalicToken class represents a token for parsing and compiling italicized text in markdown syntax.
@@ -22,37 +22,20 @@ import { createMDTokenStack } from '../token-factory';
  * *Italic and **bold***
  */
 export class MDItalicToken implements Token {
-  private startCursorPosition: number = 0;
-  private endCursorPosition: number = 0;
-  private valid: boolean = false;
-  private name: TokenType = 'italic';
-  private source: string = '';
-  private processingOrder: TokenType[] = ['bold', 'text'];
-  private children: Token[] = [];
-  getProcessingOrder(): TokenType[] {
-    return this.processingOrder;
-  }
-  getChildren(): Token[] {
-    return this.children;
-  }
-  getStartCursorPosition(): PositionInSource {
-    return this.startCursorPosition;
-  }
-  getEndCursorPosition(): PositionInSource {
-    return this.endCursorPosition;
-  }
-  isValid(): boolean {
-    return this.valid;
-  }
-  getName(): TokenType {
-    return this.name;
-  }
-  getTokenSource(): string {
-    return this.source;
+  startCursorPosition: number = 0;
+  endCursorPosition: number = 0;
+  valid: boolean = false;
+  readonly name: TokenType = "italic";
+  source: string = "";
+  readonly processingOrder: TokenType[] = ["bold", "text"];
+  readonly children: Token[] = [];
+
+  getAST(): IAST {
+    return MDgetAST(this);
   }
 
-  getAST(): string {
-    return JSON.stringify(this);
+  fromAST(ast: IAST): Token {
+    return MDfromAST(ast);
   }
 
   private isItalicIndicator(
@@ -64,7 +47,7 @@ export class MDItalicToken implements Token {
     // So only check if the next token is not a bold token.
     const boldToken = new MDBoldToken();
     boldToken.compile(source, start, end);
-    if (boldToken.isValid()) {
+    if (boldToken.valid) {
       return false;
     }
     return (
@@ -78,7 +61,7 @@ export class MDItalicToken implements Token {
     start: PositionInSource,
     end: PositionInSource
   ): boolean {
-    return typeof source !== 'string' || start < 0 || end < start;
+    return typeof source !== "string" || start < 0 || end < start;
   }
 
   compile(
@@ -102,10 +85,10 @@ export class MDItalicToken implements Token {
     while (this.endCursorPosition < end) {
       const token = tokens.pop();
       token?.compile(source, this.endCursorPosition, end);
-      if (token?.isValid()) {
+      if (token?.valid) {
         this.children.push(token);
         tokens = createMDTokenStack(this.processingOrder);
-        this.endCursorPosition = token.getEndCursorPosition();
+        this.endCursorPosition = token.endCursorPosition;
 
         // Is End condition matched.
         if (this.isItalicIndicator(source, this.endCursorPosition, end)) {
@@ -118,5 +101,8 @@ export class MDItalicToken implements Token {
     }
     // If we exit the loop, the token is invalid.
     this.valid = false;
+  }
+  decompile(): string {
+    return `*` + this.children.map((child) => child.decompile()).join("") + `*`;
   }
 }

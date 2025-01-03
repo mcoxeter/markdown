@@ -1,27 +1,27 @@
-import { expect, test, describe } from 'vitest';
-import { HTMLSoftBreakToken } from './html-soft-break-token';
+import { expect, test, describe } from "vitest";
+import { HTMLSoftBreakToken } from "./html-soft-break-token";
 
-describe('HTMLSoftBreakToken Tests', () => {
-  test('HTMLSoftBreakToken initializes correctly', () => {
+describe("HTMLSoftBreakToken Tests", () => {
+  test("HTMLSoftBreakToken initializes correctly", () => {
     const softbreakToken = new HTMLSoftBreakToken();
-    expect(softbreakToken.getChildren()).toStrictEqual([]);
-    expect(softbreakToken.getEndCursorPosition()).toBe(0);
-    expect(softbreakToken.getStartCursorPosition()).toBe(0);
-    expect(softbreakToken.isValid()).toBe(false);
-    expect(softbreakToken.getProcessingOrder()).toStrictEqual([]);
-    expect(softbreakToken.getTokenSource()).toBe('');
-    expect(softbreakToken.getName()).toBe('soft-break');
+    expect(softbreakToken.children).toStrictEqual([]);
+    expect(softbreakToken.endCursorPosition).toBe(0);
+    expect(softbreakToken.startCursorPosition).toBe(0);
+    expect(softbreakToken.valid).toBe(false);
+    expect(softbreakToken.processingOrder).toStrictEqual([]);
+    expect(softbreakToken.source).toBe("");
+    expect(softbreakToken.name).toBe("soft-break");
   });
 
-  test('HTMLSoftBreakToken has a text child after compilation', () => {
+  test("HTMLSoftBreakToken has a text child after compilation", () => {
     const softbreakToken = new HTMLSoftBreakToken();
-    softbreakToken.compile('not a softbreak', 0, 15);
-    expect(softbreakToken.isValid()).toBe(false);
+    softbreakToken.compile("not a softbreak", 0, 15);
+    expect(softbreakToken.valid).toBe(false);
   });
 
-  test('HTMLSoftBreakToken is valid', () => {
+  test("HTMLSoftBreakToken is valid", () => {
     const softbreakToken = new HTMLSoftBreakToken();
-    softbreakToken.compile('<br />', 0, 2);
-    expect(softbreakToken.isValid()).toBe(true);
+    softbreakToken.compile("<br />", 0, 2);
+    expect(softbreakToken.valid).toBe(true);
   });
 });

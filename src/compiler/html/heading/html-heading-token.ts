@@ -1,4 +1,3 @@
-import { ItalicStartIndicator, ItalicEndIndicator } from "../constants";
 import { IAST, PositionInSource, Token, TokenType } from "../../token";
 import {
   createHTMLTokenStack,
@@ -6,14 +5,18 @@ import {
   HTMLgetAST,
 } from "../token-factory";
 
-export class HTMLItalicToken implements Token {
+export class HTMLHeadingToken implements Token {
   startCursorPosition: number = 0;
   endCursorPosition: number = 0;
   valid: boolean = false;
   source: string = "";
   readonly children: Token[] = [];
-  readonly name: TokenType = "italic";
-  readonly processingOrder: TokenType[] = ["bold", "text"];
+  readonly name: TokenType = "heading";
+  readonly processingOrder: TokenType[] = ["bold", "italic", "text"];
+  private headingLevel = 0;
+
+  private readonly startIndicatorLength = 4;
+  private readonly endIndicatorLength = 5;
 
   getAST(): IAST {
     return HTMLgetAST(this);
@@ -23,21 +26,31 @@ export class HTMLItalicToken implements Token {
     return HTMLfromAST(ast);
   }
 
-  private isItalicStartIndicator(
+  getHeadingLevel(): number {
+    return this.headingLevel;
+  }
+
+  private isHeadingStartIndicator(
     source: string,
     pos: PositionInSource
   ): boolean {
-    return (
-      source.substring(pos, pos + ItalicStartIndicator.length) ===
-      ItalicStartIndicator
-    );
+    const regexMatch = source.substring(pos).match(/<h([1-6])>(.*?)<\/h\1>/);
+    return regexMatch !== null && regexMatch.length > 0;
   }
 
-  private isItalicEndIndicator(source: string, pos: PositionInSource): boolean {
-    return (
-      source.substring(pos, pos + ItalicEndIndicator.length) ===
-      ItalicEndIndicator
-    );
+  private isHeadingEndIndicator(
+    source: string,
+    pos: PositionInSource,
+    level: number
+  ): boolean {
+    const check = `</h${level}>`;
+    return source.substring(pos, pos + check.length) === check;
+  }
+
+  private getHeaderLevel(source: string, pos: PositionInSource): number {
+    const headerRegex = /^<h([1-6])>(.*?)<\/h\1>/i;
+    const match = RegExp(headerRegex).exec(source.substring(pos));
+    return match ? parseInt(match[1], 10) : 0;
   }
 
   private areInvalidArgs(
@@ -55,14 +68,16 @@ export class HTMLItalicToken implements Token {
   ): void {
     if (
       this.areInvalidArgs(source, start, end) ||
-      !this.isItalicStartIndicator(source, start)
+      !this.isHeadingStartIndicator(source, start)
     ) {
       this.valid = false;
       return;
     }
 
+    this.headingLevel = this.getHeaderLevel(source, start);
+
     this.startCursorPosition = start;
-    this.endCursorPosition = start + ItalicStartIndicator.length;
+    this.endCursorPosition = start + this.startIndicatorLength;
 
     let tokens = createHTMLTokenStack(this.processingOrder);
 
@@ -75,8 +90,14 @@ export class HTMLItalicToken implements Token {
         this.endCursorPosition = token.endCursorPosition;
 
         // Is End condition matched.
-        if (this.isItalicEndIndicator(source, this.endCursorPosition)) {
-          this.endCursorPosition += ItalicEndIndicator.length;
+        if (
+          this.isHeadingEndIndicator(
+            source,
+            this.endCursorPosition,
+            this.headingLevel
+          )
+        ) {
+          this.endCursorPosition += this.endIndicatorLength;
           this.valid = true;
           this.source = source.substring(start, this.endCursorPosition);
           return;
@@ -88,7 +109,9 @@ export class HTMLItalicToken implements Token {
   }
   decompile(): string {
     return (
-      `<i>` + this.children.map((child) => child.decompile()).join("") + `</i>`
+      `<h${this.headingLevel}>` +
+      this.children.map((child) => child.decompile()).join("") +
+      `</h${this.headingLevel}>`
     );
   }
 }
