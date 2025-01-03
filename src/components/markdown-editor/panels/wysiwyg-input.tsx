@@ -1,8 +1,8 @@
-import React from "react";
-import styles from "./wysiwyg-input.module.scss";
+import React from 'react';
+import styles from './wysiwyg-input.module.scss';
 
 const WYSIWYGInput: React.FC = () => {
-  const [value, setValue] = React.useState<string>("");
+  const [value, setValue] = React.useState<string>('');
   return (
     <textarea
       className={styles.wysiwyginput}

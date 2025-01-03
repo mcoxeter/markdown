@@ -1,5 +1,5 @@
-import { IAST, PositionInSource, Token, TokenType } from "../../token";
-import { createMDTokenStack, MDfromAST, MDgetAST } from "../token-factory";
+import { IAST, PositionInSource, Token, TokenType } from '../../token';
+import { createMDTokenStack, MDfromAST, MDgetAST } from '../token-factory';
 
 /**
  * The MDRootToken class serves as the root token in a markdown parser, representing the entirety of a markdown document.
@@ -17,9 +17,9 @@ export class MDRootToken implements Token {
   startCursorPosition: number = 0;
   endCursorPosition: number = 0;
   valid: boolean = false;
-  readonly name: TokenType = "root";
-  source: string = "";
-  readonly processingOrder: TokenType[] = ["heading", "paragraph"];
+  readonly name: TokenType = 'root';
+  source: string = '';
+  readonly processingOrder: TokenType[] = ['heading', 'paragraph'];
   readonly children: Token[] = [];
 
   getAST(): IAST {
@@ -35,7 +35,7 @@ export class MDRootToken implements Token {
     start: PositionInSource,
     end: PositionInSource
   ): boolean {
-    return typeof source !== "string" || start < 0 || end < start;
+    return typeof source !== 'string' || start < 0 || end < start;
   }
 
   private hasReachedSourceEnd(end: PositionInSource): boolean {
@@ -74,6 +74,6 @@ export class MDRootToken implements Token {
     }
   }
   decompile(): string {
-    return this.children.map((child) => child.decompile()).join("");
+    return this.children.map((child) => child.decompile()).join('');
   }
 }

@@ -1,11 +1,11 @@
-import React from "react";
-import styles from "./ast-input.module.scss";
-import { MarkdownContext } from "../markdown-context";
-import { MDRootToken } from "../../../compiler/markdown/root/md-root-token";
+import React from 'react';
+import styles from './ast-input.module.scss';
+import { MarkdownContext } from '../markdown-context';
+import { MDRootToken } from '../../../compiler/markdown/root/md-root-token';
 
 const ASTInput: React.FC = () => {
   const context = React.useContext(MarkdownContext);
-  const [ast, setAST] = React.useState<string>("");
+  const [ast, setAST] = React.useState<string>('');
 
   React.useEffect(() => {
     const rootToken = new MDRootToken();

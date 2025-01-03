@@ -1,12 +1,12 @@
-import React from "react";
-import styles from "./html-input.module.scss";
-import { MarkdownContext } from "../markdown-context";
-import { HTMLRootToken } from "../../../compiler/html/root/html-root-token";
-import { MDRootToken } from "../../../compiler/markdown/root/md-root-token";
+import React from 'react';
+import styles from './html-input.module.scss';
+import { MarkdownContext } from '../markdown-context';
+import { HTMLRootToken } from '../../../compiler/html/root/html-root-token';
+import { MDRootToken } from '../../../compiler/markdown/root/md-root-token';
 
 const HTMLInput: React.FC = () => {
   const context = React.useContext(MarkdownContext);
-  const [html, setHtml] = React.useState<string>("");
+  const [html, setHtml] = React.useState<string>('');
 
   React.useEffect(() => {
     const mdRootToken = new MDRootToken();
